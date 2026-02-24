@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:16
@@ -20,8 +18,8 @@ services:
 
   api:
     build:
-      context: ../backend/AlcoCalendar.Api
-      dockerfile: Dockerfile
+      context: ../backend
+      dockerfile: AlcoCalendar.Api/Dockerfile
     container_name: alco_api
     environment:
       ASPNETCORE_URLS: http://+:8080
@@ -38,7 +36,7 @@ services:
       dockerfile: Dockerfile
     container_name: alco_frontend
     ports:
-      - "3000:5173"
+      - "3000:80"
     depends_on:
       - api
 

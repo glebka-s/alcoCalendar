@@ -12,7 +12,7 @@ WORKDIR /usr/share/nginx/html
 
 COPY --from=build /app/dist .
 
-EXPOSE 5173
+EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
 

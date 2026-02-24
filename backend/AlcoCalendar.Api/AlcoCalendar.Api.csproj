@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\AlcoCalendar.Application\AlcoCalendar.Application.csproj" />
     <ProjectReference Include="..\AlcoCalendar.Infrastructure\AlcoCalendar.Infrastructure.csproj" />
   </ItemGroup>

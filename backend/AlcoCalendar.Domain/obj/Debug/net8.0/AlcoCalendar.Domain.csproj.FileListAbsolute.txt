@@ -1,0 +1,12 @@
+D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Domain\bin\Debug\net8.0\AlcoCalendar.Domain.deps.json
+D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Domain\bin\Debug\net8.0\AlcoCalendar.Domain.dll
+D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Domain\bin\Debug\net8.0\AlcoCalendar.Domain.pdb
+D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Domain\obj\Debug\net8.0\AlcoCalendar.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Domain\obj\Debug\net8.0\AlcoCalendar.Domain.AssemblyInfoInputs.cache
+D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Domain\obj\Debug\net8.0\AlcoCalendar.Domain.AssemblyInfo.cs
+D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Domain\obj\Debug\net8.0\AlcoCalendar.Domain.csproj.CoreCompileInputs.cache
+D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Domain\obj\Debug\net8.0\AlcoCalendar.Domain.sourcelink.json
+D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Domain\obj\Debug\net8.0\AlcoCalendar.Domain.dll
+D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Domain\obj\Debug\net8.0\refint\AlcoCalendar.Domain.dll
+D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Domain\obj\Debug\net8.0\AlcoCalendar.Domain.pdb
+D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Domain\obj\Debug\net8.0\ref\AlcoCalendar.Domain.dll

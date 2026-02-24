@@ -1,11 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "hbQOy7Jo9nA=",
+  "dgSpecHash": "QdSf0Jrb4is=",
   "success": true,
-  "projectFilePath": "d:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Api\\AlcoCalendar.Api.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\glsta\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.3\\microsoft.aspnetcore.openapi.10.0.3.nupkg.sha512",
-    "C:\\Users\\glsta\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512"
-  ],
+  "projectFilePath": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Api\\AlcoCalendar.Api.csproj",
+  "expectedPackageFiles": [],
   "logs": []
 }
