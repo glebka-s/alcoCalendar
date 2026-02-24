@@ -1,0 +1,6 @@
+@AlcoCalendar.Api_HostAddress = http://localhost:5155
+
+GET {{AlcoCalendar.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

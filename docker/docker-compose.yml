@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: alco_db
+    environment:
+      POSTGRES_USER: alco_user
+      POSTGRES_PASSWORD: alco_password
+      POSTGRES_DB: alco_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - alco_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ../backend/AlcoCalendar.Api
+      dockerfile: Dockerfile
+    container_name: alco_api
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=alco_db;Username=alco_user;Password=alco_password
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:8080"
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: alco_frontend
+    ports:
+      - "3000:5173"
+    depends_on:
+      - api
+
+volumes:
+  alco_pgdata:
+
