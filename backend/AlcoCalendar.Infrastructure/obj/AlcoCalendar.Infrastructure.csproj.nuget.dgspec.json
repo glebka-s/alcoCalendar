@@ -10,7 +10,7 @@
         "projectUniqueName": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Application\\AlcoCalendar.Application.csproj",
         "projectName": "AlcoCalendar.Application",
         "projectPath": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Application\\AlcoCalendar.Application.csproj",
-        "packagesPath": "C:\\Users\\glsta\\.nuget\\packages\\",
+        "packagesPath": "C:\\Users\\glsta\\AppData\\Local\\Temp\\cursor-sandbox-cache\\dfda4941fbecdf529a23519bccbefd90\\nuget",
         "outputPath": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Application\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
@@ -73,7 +73,7 @@
         "projectUniqueName": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Domain\\AlcoCalendar.Domain.csproj",
         "projectName": "AlcoCalendar.Domain",
         "projectPath": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Domain\\AlcoCalendar.Domain.csproj",
-        "packagesPath": "C:\\Users\\glsta\\.nuget\\packages\\",
+        "packagesPath": "C:\\Users\\glsta\\AppData\\Local\\Temp\\cursor-sandbox-cache\\dfda4941fbecdf529a23519bccbefd90\\nuget",
         "outputPath": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
@@ -132,7 +132,7 @@
         "projectUniqueName": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Infrastructure\\AlcoCalendar.Infrastructure.csproj",
         "projectName": "AlcoCalendar.Infrastructure",
         "projectPath": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Infrastructure\\AlcoCalendar.Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\glsta\\.nuget\\packages\\",
+        "packagesPath": "C:\\Users\\glsta\\AppData\\Local\\Temp\\cursor-sandbox-cache\\dfda4941fbecdf529a23519bccbefd90\\nuget",
         "outputPath": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
@@ -172,6 +172,34 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "BCrypt.Net-Next": {
+              "target": "Package",
+              "version": "[4.1.0, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Microsoft.IdentityModel.Tokens": {
+              "target": "Package",
+              "version": "[7.0.3, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[7.0.3, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AlcoCalendar.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+160d4d237c3432419572d93aa4c452f8ac9eba0c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+635a94d4a05d05b080094822a38a57134b1e00f6")]
 [assembly: System.Reflection.AssemblyProductAttribute("AlcoCalendar.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AlcoCalendar.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

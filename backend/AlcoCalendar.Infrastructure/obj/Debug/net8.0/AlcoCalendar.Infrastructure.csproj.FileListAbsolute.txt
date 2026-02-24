@@ -16,3 +16,5 @@ D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Infrastructure\obj\Debug\net
 D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Infrastructure\obj\Debug\net8.0\refint\AlcoCalendar.Infrastructure.dll
 D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Infrastructure\obj\Debug\net8.0\AlcoCalendar.Infrastructure.pdb
 D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Infrastructure\obj\Debug\net8.0\ref\AlcoCalendar.Infrastructure.dll
+D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Infrastructure\bin\Debug\net8.0\AlcoCalendar.Infrastructure.runtimeconfig.json
+D:\MyTestProjects\alcoCalendar\backend\AlcoCalendar.Infrastructure\obj\Debug\net8.0\AlcoCalendar.Infrastructure.genruntimeconfig.cache

@@ -23,7 +23,11 @@ services:
     container_name: alco_api
     environment:
       ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=alco_db;Username=alco_user;Password=alco_password
+      Jwt__Issuer: AlcoCalendar
+      Jwt__Audience: AlcoCalendar
+      Jwt__SigningKey: change-me-change-me-change-me-32chars
     depends_on:
       db:
         condition: service_healthy
