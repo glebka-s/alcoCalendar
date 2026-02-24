@@ -7,11 +7,22 @@ public static class AuthEndpoints
 {
     public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/auth");
+        var group = app.MapGroup("/auth").RequireRateLimiting("auth");
 
-        group.MapPost("/register", Register);
-        group.MapPost("/login", Login);
-        group.MapPost("/refresh", Refresh);
+        group.MapPost("/register", Register)
+            .WithSummary("Регистрация нового пользователя")
+            .Produces<AuthResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest);
+
+        group.MapPost("/login", Login)
+            .WithSummary("Вход в систему")
+            .Produces<AuthResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest);
+
+        group.MapPost("/refresh", Refresh)
+            .WithSummary("Обновление токена доступа")
+            .Produces<AuthResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest);
 
         return app;
     }
