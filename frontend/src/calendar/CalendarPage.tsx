@@ -109,12 +109,12 @@ export default function CalendarPage() {
 
   return (
     <div style={{
-      width: '100%', minHeight: '100vh',
+      width: '100%', height: '100%',
       background: 'linear-gradient(160deg, #0a0f1e 0%, #12183a 40%, #0d1424 100%)',
       color: '#e2e8f0',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       display: 'flex', flexDirection: 'column',
-      boxSizing: 'border-box',
+      overflow: 'hidden',
     }}>
 
       {/* Header */}
@@ -146,28 +146,28 @@ export default function CalendarPage() {
 
       {/* Body: calendar + optional side panel */}
       <div style={{
-        flex: 1, display: 'flex', overflow: 'hidden',
+        flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0,
       }}>
 
         {/* Calendar section */}
         <div style={{
           flex: 1, display: 'flex', flexDirection: 'column',
-          padding: '28px 32px',
-          overflow: 'auto', minWidth: 0,
+          padding: '20px 28px',
+          overflow: 'hidden', minWidth: 0,
         }}>
 
           {/* Top bar: nav + stats */}
           <div style={{
-            display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
-            marginBottom: 24, gap: 16, flexWrap: 'wrap',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            marginBottom: 12, gap: 12, flexWrap: 'wrap', flexShrink: 0,
           }}>
             {/* Month nav */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <button onClick={prevMonth} style={navBtn} aria-label="Предыдущий месяц">‹</button>
               <h1 style={{
-                margin: 0, fontSize: 28, fontWeight: 800,
+                margin: 0, fontSize: 22, fontWeight: 800,
                 color: '#f1f5f9', letterSpacing: '-0.5px',
-                minWidth: 240, textAlign: 'center',
+                minWidth: 200, textAlign: 'center',
               }}>
                 {MONTH_NAMES[viewMonth - 1]} {viewYear}
               </h1>
@@ -216,16 +216,16 @@ export default function CalendarPage() {
           )}
 
           {!isLoading && !isError && (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
               {/* Weekday headers */}
               <div style={{
                 display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)',
-                gap: 8, marginBottom: 8,
+                gap: 6, marginBottom: 6, flexShrink: 0,
               }}>
                 {WEEKDAY_LABELS_FULL.map(label => (
                   <div key={label} style={{
                     textAlign: 'center', fontSize: 11, fontWeight: 700,
-                    color: '#475569', padding: '4px 0',
+                    color: '#475569', padding: '3px 0',
                     textTransform: 'uppercase', letterSpacing: '0.08em',
                   }}>
                     {label}
@@ -236,7 +236,8 @@ export default function CalendarPage() {
               {/* Day grid */}
               <div style={{
                 display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)',
-                gap: 8, flex: 1,
+                gridAutoRows: '1fr',
+                gap: 6, flex: 1, minHeight: 0, overflow: 'hidden',
               }}>
                 {gridCells.map(cell => (
                   <DayCell
@@ -253,19 +254,19 @@ export default function CalendarPage() {
 
               {/* Legend */}
               <div style={{
-                marginTop: 20, display: 'flex', gap: 20,
-                fontSize: 12, color: '#475569', flexWrap: 'wrap', alignItems: 'center',
+                marginTop: 6, display: 'flex', gap: 12, flexShrink: 0,
+                fontSize: 10, color: '#475569', flexWrap: 'wrap', alignItems: 'center',
               }}>
                 <LegendItem color="#22c55e" label="Не пил" />
                 <LegendItem color="#ef4444" label="Пил" />
                 <LegendItem color="rgba(255,255,255,0.12)" label="Не задано" />
-                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ width: 14, height: 14, borderRadius: 3, display: 'inline-block', outline: '2px solid #818cf8', outlineOffset: 1 }} />
+                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 2, display: 'inline-block', outline: '2px solid #818cf8', outlineOffset: 1 }} />
                   Сегодня
                 </span>
                 {selectedDate && (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ width: 14, height: 14, borderRadius: 3, display: 'inline-block', outline: '2px solid #f59e0b', outlineOffset: 1 }} />
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ width: 10, height: 10, borderRadius: 2, display: 'inline-block', outline: '2px solid #f59e0b', outlineOffset: 1 }} />
                     Выбранный день
                   </span>
                 )}
@@ -300,11 +301,12 @@ const navBtn: React.CSSProperties = {
 
 function LegendItem({ color, label }: { color: string; label: string }) {
   return (
-    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
       <span style={{
-        display: 'inline-block', width: 14, height: 14, borderRadius: 3,
+        display: 'inline-block', width: 10, height: 10, borderRadius: 2,
         background: color === 'rgba(255,255,255,0.12)' ? color : `${color}25`,
         border: `2px solid ${color}`,
+        flexShrink: 0,
       }} />
       {label}
     </span>

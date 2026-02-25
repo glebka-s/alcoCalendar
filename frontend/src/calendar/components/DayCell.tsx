@@ -68,19 +68,20 @@ export default function DayCell({ day, dayNumber, isToday, isCurrentMonth, isSel
       onClick={onClick}
       style={{
         border: getBorder(status, isSelected, isToday),
-        borderRadius: 12,
+        borderRadius: 10,
         background: getBg(status, isSelected),
-        minHeight: 90,
-        padding: '10px 12px',
+        height: '100%',
+        width: '100%',
+        padding: '8px 10px',
         cursor: 'pointer',
         display: 'flex',
         flexDirection: 'column',
-        gap: 6,
+        gap: 4,
         textAlign: 'left',
         transition: 'transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease',
         opacity: isCurrentMonth ? 1 : 0.3,
         outline: 'none',
-        width: '100%',
+        overflow: 'hidden',
       }}
       onMouseEnter={e => {
         const el = e.currentTarget;

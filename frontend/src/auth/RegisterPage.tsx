@@ -37,7 +37,7 @@ export function RegisterPage() {
       }
       setAuthTokens(tokens.accessToken, tokens.refreshToken)
       login(tokens)
-      navigate('/app', { replace: true })
+      navigate('/calendar', { replace: true })
     } catch (err: unknown) {
       const maybeAxios = err as { response?: { data?: unknown } }
       const body = maybeAxios.response?.data as ErrorResponse | undefined
@@ -48,7 +48,7 @@ export function RegisterPage() {
   }
 
   return (
-    <div style={{ fontFamily: 'system-ui', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a' }}>
+    <div style={{ fontFamily: 'system-ui', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(160deg, #0a0f1e 0%, #12183a 40%, #0d1424 100%)' }}>
       <form
         onSubmit={handleSubmit}
         style={{
