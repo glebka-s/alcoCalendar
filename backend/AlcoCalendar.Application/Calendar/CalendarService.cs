@@ -32,16 +32,21 @@ public sealed class CalendarService : ICalendarService
             eventsByDate.TryGetValue(date, out var dayEvents);
             dayEvents ??= [];
 
-            var drinkNames = dayEvents
+            var status = summary?.Status ?? DayStatus.Unknown;
+            List<ConsumptionEvent> visibleEvents = status == DayStatus.Drank
+                ? dayEvents
+                : [];
+
+            var drinkNames = visibleEvents
                 .Select(e => drinkTypeNames.TryGetValue(e.DrinkTypeId, out var n) ? n : "Unknown")
                 .Distinct()
                 .ToList();
 
             days.Add(new DayCalendarItem(
                 date,
-                summary?.Status ?? DayStatus.Unknown,
-                dayEvents.Count,
-                dayEvents.Sum(e => e.VolumeMl),
+                status,
+                visibleEvents.Count,
+                visibleEvents.Sum(e => e.VolumeMl),
                 drinkNames));
         }
 

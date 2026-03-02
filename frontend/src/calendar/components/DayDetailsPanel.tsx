@@ -1,5 +1,25 @@
 import { useState, useEffect } from 'react';
 import type { DayStatus } from '../../types/calendar';
+
+const DRINK_ICONS: Record<string, string> = {
+  'Пиво': '🍺',
+  'Вино': '🍷',
+  'Водка': '🥃',
+  'Коктейль': '🍹',
+  'Шампанское': '🥂',
+  'Виски': '🥃',
+  'Ром': '🥃',
+  'Джин': '🥃',
+  'Текила': '🥃',
+  'Сидр': '🍺',
+  'Бренди': '🥃',
+  'Ликёр': '🍶',
+  'Крепкий алкоголь': '🥃',
+};
+
+function getDrinkIcon(name: string): string {
+  return DRINK_ICONS[name] ?? '🍸';
+}
 import {
   useDayDetails,
   useDrinkTypes,
@@ -59,7 +79,6 @@ type View = 'main' | 'changeStatus' | 'addDrink';
 
 export default function DayDetailsPanel({ date, year, month, onClose }: Props) {
   const [view, setView] = useState<View>('main');
-  const [fromStatusFlow, setFromStatusFlow] = useState(false);
 
   const { data: details, isLoading } = useDayDetails(date);
   const { data: drinkTypes = [] } = useDrinkTypes();
@@ -68,7 +87,7 @@ export default function DayDetailsPanel({ date, year, month, onClose }: Props) {
   const deleteEventMut = useDeleteEvent(date, year, month);
 
   // Reset view when date changes
-  useEffect(() => { setView('main'); setFromStatusFlow(false); }, [date]);
+  useEffect(() => { setView('main'); }, [date]);
 
   const isUnset = !details || details.status === 'Unknown';
   const isDrank = details?.status === 'Drank';
@@ -79,17 +98,13 @@ export default function DayDetailsPanel({ date, year, month, onClose }: Props) {
     setView('main');
   };
 
-  const handleDrank = () => {
-    setFromStatusFlow(isUnset);
+  const handleDrank = async () => {
+    await setStatusMut.mutateAsync({ date, request: { status: 'Drank' } });
     setView('addDrink');
   };
 
   const handleAddDrink = async (req: import('../../types/calendar').AddEventRequest) => {
-    if (fromStatusFlow) {
-      await setStatusMut.mutateAsync({ date, request: { status: 'Drank', event: req } });
-    } else {
-      await addEventMut.mutateAsync(req);
-    }
+    await addEventMut.mutateAsync(req);
     setView('main');
   };
 
@@ -156,7 +171,7 @@ export default function DayDetailsPanel({ date, year, month, onClose }: Props) {
                     border: '1px solid rgba(255,255,255,0.07)',
                     borderRadius: 12,
                   }}>
-                    <span style={{ fontSize: 22, flexShrink: 0 }}>🍺</span>
+                    <span style={{ fontSize: 22, flexShrink: 0 }}>{getDrinkIcon(ev.drinkTypeName)}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontWeight: 600, fontSize: 14, color: '#e2e8f0' }}>{ev.drinkTypeName}</div>
                       <div style={{ fontSize: 12, color: '#64748b', marginTop: 3 }}>
@@ -230,7 +245,7 @@ export default function DayDetailsPanel({ date, year, month, onClose }: Props) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {isDrank && (
                     <button
-                      onClick={() => { setFromStatusFlow(false); setView('addDrink'); }}
+                      onClick={() => setView('addDrink')}
                       disabled={isBusy}
                       style={{
                         padding: '11px', borderRadius: 10, border: 'none',

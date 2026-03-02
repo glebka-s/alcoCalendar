@@ -28,14 +28,30 @@ const labelStyle: React.CSSProperties = {
   color: '#94a3b8',
 };
 
+const DEFAULT_VOLUMES: Record<string, number> = {
+  'Пиво': 500,
+  'Вино': 100,
+  'Крепкий алкоголь': 50,
+  'Сидр': 500,
+  'Коктейль': 200,
+};
+
+function getDefaultVolume(drinkTypes: DrinkType[], id: number): string {
+  const name = drinkTypes.find(d => d.id === id)?.name ?? '';
+  return String(DEFAULT_VOLUMES[name] ?? 50);
+}
+
 export default function AddEventForm({ drinkTypes, onSubmit, onCancel, isLoading }: AddEventFormProps) {
-  const [drinkTypeId, setDrinkTypeId] = useState<number>(drinkTypes[0]?.id ?? 1);
-  const [volumeMl, setVolumeMl] = useState<number>(500);
+  const initialId = drinkTypes[0]?.id ?? 1;
+  const [drinkTypeId, setDrinkTypeId] = useState<number>(initialId);
+  const [volumeStr, setVolumeStr] = useState<string>(() => getDefaultVolume(drinkTypes, initialId));
   const [notes, setNotes] = useState('');
   const [time, setTime] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const volumeMl = parseInt(volumeStr, 10);
+    if (!volumeMl || volumeMl <= 0) return;
     onSubmit({
       drinkTypeId,
       volumeMl,
@@ -50,7 +66,11 @@ export default function AddEventForm({ drinkTypes, onSubmit, onCancel, isLoading
         Тип напитка
         <select
           value={drinkTypeId}
-          onChange={e => setDrinkTypeId(Number(e.target.value))}
+          onChange={e => {
+            const id = Number(e.target.value);
+            setDrinkTypeId(id);
+            setVolumeStr(getDefaultVolume(drinkTypes, id));
+          }}
           style={{ ...inputStyle, cursor: 'pointer' }}
           required
         >
@@ -66,10 +86,15 @@ export default function AddEventForm({ drinkTypes, onSubmit, onCancel, isLoading
         Объём (мл)
         <input
           type="number"
-          value={volumeMl}
-          onChange={e => setVolumeMl(Number(e.target.value))}
-          min={1}
+          value={volumeStr}
+          onChange={e => setVolumeStr(e.target.value)}
+          onBlur={e => {
+            const val = parseInt(e.target.value, 10);
+            if (!val || val <= 0) setVolumeStr(getDefaultVolume(drinkTypes, drinkTypeId));
+          }}
+          min={50}
           max={10000}
+          step={50}
           style={inputStyle}
           required
         />
@@ -113,7 +138,7 @@ export default function AddEventForm({ drinkTypes, onSubmit, onCancel, isLoading
             fontSize: 14,
           }}
         >
-          Отмена
+          Пропустить
         </button>
         <button
           type="submit"
