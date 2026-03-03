@@ -48,3 +48,21 @@ public sealed record DayDetailsResponse(
     IReadOnlyList<ConsumptionEventResponse> Events);
 
 public sealed record AddEventResponse(Guid Id);
+
+public sealed record WeeklyBreakdownResponse(
+    string WeekStart,
+    int SoberDays,
+    int DrankDays,
+    int VolumeMl);
+
+public sealed record CalendarStatsResponse(
+    int TotalDays,
+    int SoberDays,
+    int DrankDays,
+    int UnknownDays,
+    double SoberPercent,
+    int CurrentSoberStreak,
+    int LongestSoberStreak,
+    int TotalVolumeMl,
+    string? FavoriteDrink,
+    IReadOnlyList<WeeklyBreakdownResponse> WeeklyBreakdown);

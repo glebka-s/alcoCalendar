@@ -6,6 +6,7 @@ import type {
   SetDayStatusRequest,
   AddEventRequest,
   AddEventResponse,
+  CalendarStats,
 } from '../types/calendar';
 
 export async function fetchMonthCalendar(
@@ -47,5 +48,12 @@ export async function deleteEvent(date: string, eventId: string): Promise<void> 
 
 export async function fetchDrinkTypes(): Promise<DrinkType[]> {
   const { data } = await apiClient.get<DrinkType[]>('/drink-types');
+  return data;
+}
+
+export async function fetchStats(months: number = 3): Promise<CalendarStats> {
+  const { data } = await apiClient.get<CalendarStats>('/calendar/stats', {
+    params: { months },
+  });
   return data;
 }

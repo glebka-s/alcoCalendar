@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.RateLimiting;
 using AlcoCalendar.Api.Calendar;
+using AlcoCalendar.Api.Users;
 using AlcoCalendar.Application.Auth;
 using AlcoCalendar.Application.Calendar;
 using AlcoCalendar.Application.Users;
@@ -166,13 +167,7 @@ try
     app.MapAuthEndpoints();
     app.MapDrinkTypesEndpoints();
     app.MapCalendarEndpoints();
-
-    app.MapGet("/me", (HttpContext ctx) =>
-    {
-        var userId = ctx.User.FindFirstValue(JwtRegisteredClaimNames.Sub) ?? ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var email = ctx.User.FindFirstValue(JwtRegisteredClaimNames.Email) ?? ctx.User.FindFirstValue(ClaimTypes.Email);
-        return Results.Ok(new { userId, email });
-    }).RequireAuthorization();
+    app.MapUserEndpoints();
 
     app.Run();
 }

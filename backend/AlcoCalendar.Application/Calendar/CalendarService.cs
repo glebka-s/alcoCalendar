@@ -121,6 +121,86 @@ public sealed class CalendarService : ICalendarService
         await _repo.DeleteConsumptionEventAsync(evt, ct);
     }
 
+    public async Task<CalendarStatsResult> GetStatsAsync(Guid userId, int months, CancellationToken ct = default)
+    {
+        if (months < 1 || months > 12)
+            throw new CalendarValidationException("Months must be between 1 and 12.");
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var from = today.AddMonths(-months).AddDays(1);
+        var totalDays = today.DayNumber - from.DayNumber + 1;
+
+        var summaries = await _repo.GetSummariesInRangeAsync(userId, from, today, ct);
+        var events = await _repo.GetEventsInRangeAsync(userId, from, today, ct);
+        var drinkTypeNames = await _repo.GetDrinkTypeNamesAsync(ct);
+
+        var summaryByDate = summaries.ToDictionary(s => s.Date);
+
+        var soberDays = summaries.Count(s => s.Status == DayStatus.Sober);
+        var drankDays = summaries.Count(s => s.Status == DayStatus.Drank);
+        var unknownDays = totalDays - soberDays - drankDays;
+        var soberPercent = totalDays > 0 ? Math.Round((double)soberDays / totalDays * 100, 1) : 0;
+
+        var totalVolumeMl = events.Sum(e => e.VolumeMl);
+
+        // Favorite drink
+        string? favoriteDrink = null;
+        if (events.Count > 0)
+        {
+            var topDrinkId = events
+                .GroupBy(e => e.DrinkTypeId)
+                .OrderByDescending(g => g.Count())
+                .First().Key;
+            drinkTypeNames.TryGetValue(topDrinkId, out favoriteDrink);
+        }
+
+        // Streaks (current and longest sober)
+        int currentStreak = 0, longestStreak = 0, streak = 0;
+        for (var d = from; d <= today; d = d.AddDays(1))
+        {
+            if (summaryByDate.TryGetValue(d, out var s) && s.Status == DayStatus.Sober)
+            {
+                streak++;
+                if (streak > longestStreak) longestStreak = streak;
+            }
+            else
+            {
+                streak = 0;
+            }
+        }
+        currentStreak = streak;
+
+        // Weekly breakdown
+        var weeks = new List<WeeklyBreakdownItem>();
+        var weekStart = from;
+        var dowOffset = ((int)from.DayOfWeek + 6) % 7;
+        if (dowOffset > 0)
+            weekStart = from.AddDays(-dowOffset);
+
+        for (var ws = weekStart; ws <= today; ws = ws.AddDays(7))
+        {
+            var we = ws.AddDays(6);
+            if (we > today) we = today;
+            var effectiveStart = ws < from ? from : ws;
+
+            int wSober = 0, wDrank = 0, wVol = 0;
+            for (var d = effectiveStart; d <= we; d = d.AddDays(1))
+            {
+                if (summaryByDate.TryGetValue(d, out var ds))
+                {
+                    if (ds.Status == DayStatus.Sober) wSober++;
+                    else if (ds.Status == DayStatus.Drank) wDrank++;
+                }
+            }
+            wVol = events.Where(e => e.Date >= effectiveStart && e.Date <= we).Sum(e => e.VolumeMl);
+            weeks.Add(new WeeklyBreakdownItem(ws, wSober, wDrank, wVol));
+        }
+
+        return new CalendarStatsResult(
+            totalDays, soberDays, drankDays, unknownDays, soberPercent,
+            currentStreak, longestStreak, totalVolumeMl, favoriteDrink, weeks);
+    }
+
     private static void ValidateYearMonth(int year, int month)
     {
         if (year < 2000 || year > 2100)

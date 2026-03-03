@@ -3176,7 +3176,7 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\glsta\\AppData\\Local\\Temp\\cursor-sandbox-cache\\dfda4941fbecdf529a23519bccbefd90\\nuget": {}
+    "C:\\Users\\glsta\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
@@ -3184,7 +3184,7 @@
       "projectUniqueName": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Infrastructure\\AlcoCalendar.Infrastructure.csproj",
       "projectName": "AlcoCalendar.Infrastructure",
       "projectPath": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Infrastructure\\AlcoCalendar.Infrastructure.csproj",
-      "packagesPath": "C:\\Users\\glsta\\AppData\\Local\\Temp\\cursor-sandbox-cache\\dfda4941fbecdf529a23519bccbefd90\\nuget",
+      "packagesPath": "C:\\Users\\glsta\\.nuget\\packages\\",
       "outputPath": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Infrastructure\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [

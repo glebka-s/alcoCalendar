@@ -10,7 +10,7 @@
         "projectUniqueName": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Application\\AlcoCalendar.Application.csproj",
         "projectName": "AlcoCalendar.Application",
         "projectPath": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Application\\AlcoCalendar.Application.csproj",
-        "packagesPath": "C:\\Users\\glsta\\AppData\\Local\\Temp\\cursor-sandbox-cache\\dfda4941fbecdf529a23519bccbefd90\\nuget",
+        "packagesPath": "C:\\Users\\glsta\\.nuget\\packages\\",
         "outputPath": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Application\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
@@ -73,7 +73,7 @@
         "projectUniqueName": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Domain\\AlcoCalendar.Domain.csproj",
         "projectName": "AlcoCalendar.Domain",
         "projectPath": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Domain\\AlcoCalendar.Domain.csproj",
-        "packagesPath": "C:\\Users\\glsta\\AppData\\Local\\Temp\\cursor-sandbox-cache\\dfda4941fbecdf529a23519bccbefd90\\nuget",
+        "packagesPath": "C:\\Users\\glsta\\.nuget\\packages\\",
         "outputPath": "D:\\MyTestProjects\\alcoCalendar\\backend\\AlcoCalendar.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [

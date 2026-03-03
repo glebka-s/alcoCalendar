@@ -1,3 +1,4 @@
+import { Check } from 'lucide-react';
 import type { CalendarDay, DayStatus } from '../../types/calendar';
 
 interface DayCellProps {
@@ -29,34 +30,34 @@ function getDrinkIcon(name: string): string {
   return DRINK_ICONS[name] ?? '🍸';
 }
 
-function getBg(status: DayStatus, isSelected: boolean) {
-  if (isSelected) return 'rgba(245, 158, 11, 0.15)';
-  switch (status) {
-    case 'Sober': return 'rgba(34, 197, 94, 0.1)';
-    case 'Drank': return 'rgba(239, 68, 68, 0.1)';
-    default: return 'rgba(255,255,255,0.03)';
-  }
-}
+function cellClasses(status: DayStatus, isSelected: boolean, isToday: boolean, isCurrentMonth: boolean) {
+  const base =
+    'rounded-xl w-full h-full p-1.5 sm:p-2 flex flex-col gap-0.5 text-left transition-all duration-150 outline-none cursor-pointer border';
 
-function getBorder(status: DayStatus, isSelected: boolean, isToday: boolean) {
-  if (isSelected) return '2px solid rgba(245, 158, 11, 0.7)';
-  if (isToday) return '2px solid rgba(129, 140, 248, 0.7)';
-  switch (status) {
-    case 'Sober': return '1px solid rgba(34, 197, 94, 0.3)';
-    case 'Drank': return '1px solid rgba(239, 68, 68, 0.3)';
-    default: return '1px solid rgba(255,255,255,0.06)';
-  }
-}
+  const opacity = isCurrentMonth ? '' : 'opacity-30';
 
-function StatusDot({ status }: { status: DayStatus }) {
-  if (status === 'Unknown') return null;
-  return (
-    <span style={{
-      width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-      background: status === 'Sober' ? '#22c55e' : '#ef4444',
-      boxShadow: status === 'Sober' ? '0 0 6px #22c55e' : '0 0 6px #ef4444',
-    }} />
-  );
+  if (isSelected) {
+    return `${base} ${opacity} bg-primary/15 border-primary/60 ring-2 ring-primary/30`;
+  }
+
+  if (isToday) {
+    const statusClasses =
+      status === 'Sober'
+        ? 'bg-sober/12 border-sober/40'
+        : status === 'Drank'
+          ? 'bg-drinking/12 border-drinking/40'
+          : 'bg-card border-primary/50';
+    return `${base} ${opacity} ${statusClasses} ring-2 ring-primary/25`;
+  }
+
+  switch (status) {
+    case 'Sober':
+      return `${base} ${opacity} bg-sober/10 border-sober/25 hover:border-sober/50 hover:bg-sober/15`;
+    case 'Drank':
+      return `${base} ${opacity} bg-drinking/10 border-drinking/25 hover:border-drinking/50 hover:bg-drinking/15`;
+    default:
+      return `${base} ${opacity} bg-card/60 border-border hover:border-muted hover:bg-card`;
+  }
 }
 
 export default function DayCell({ day, dayNumber, isToday, isCurrentMonth, isSelected, onClick }: DayCellProps) {
@@ -64,69 +65,42 @@ export default function DayCell({ day, dayNumber, isToday, isCurrentMonth, isSel
   const icons = (day?.drinkTypeNames ?? []).slice(0, 3);
 
   return (
-    <button
-      onClick={onClick}
-      style={{
-        border: getBorder(status, isSelected, isToday),
-        borderRadius: 10,
-        background: getBg(status, isSelected),
-        height: '100%',
-        width: '100%',
-        padding: '8px 10px',
-        cursor: 'pointer',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 4,
-        textAlign: 'left',
-        transition: 'transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease',
-        opacity: isCurrentMonth ? 1 : 0.3,
-        outline: 'none',
-        overflow: 'hidden',
-      }}
-      onMouseEnter={e => {
-        const el = e.currentTarget;
-        el.style.transform = 'translateY(-2px)';
-        el.style.boxShadow = '0 6px 24px rgba(0,0,0,0.4)';
-      }}
-      onMouseLeave={e => {
-        const el = e.currentTarget;
-        el.style.transform = 'translateY(0)';
-        el.style.boxShadow = 'none';
-      }}
-    >
-      {/* Day number + dot */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{
-          fontWeight: isToday ? 800 : 600,
-          fontSize: 16,
-          color: isToday ? '#818cf8' : isSelected ? '#f59e0b' : isCurrentMonth ? '#e2e8f0' : '#334155',
-          lineHeight: 1,
-        }}>
+    <button onClick={onClick} className={cellClasses(status, isSelected, isToday, isCurrentMonth)}>
+      <div className="flex justify-between items-center">
+        <span
+          className={`font-semibold text-sm sm:text-base leading-none ${
+            isToday
+              ? 'text-primary font-extrabold'
+              : isSelected
+                ? 'text-primary'
+                : isCurrentMonth
+                  ? 'text-foreground'
+                  : 'text-muted/50'
+          }`}
+        >
           {dayNumber}
         </span>
-        <StatusDot status={status} />
+        {status === 'Sober' && <Check className="w-3.5 h-3.5 text-sober" />}
+        {status === 'Drank' && (
+          <span className="w-2 h-2 rounded-full bg-drinking shadow-[0_0_6px] shadow-drinking" />
+        )}
       </div>
 
-      {/* Drink icons */}
       {icons.length > 0 && (
-        <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+        <div className="flex gap-0.5 flex-wrap">
           {icons.map((name, i) => (
-            <span key={i} style={{ fontSize: 18, lineHeight: 1 }} title={name}>
+            <span key={i} className="text-base sm:text-lg leading-none" title={name}>
               {getDrinkIcon(name)}
             </span>
           ))}
         </div>
       )}
 
-      {/* Volume */}
       {day && day.totalVolumeMl > 0 && (
-        <span style={{
-          fontSize: 11, color: '#64748b', marginTop: 'auto',
-          fontWeight: 500,
-        }}>
+        <span className="text-[10px] sm:text-xs text-muted mt-auto font-medium">
           {day.totalVolumeMl >= 1000
-            ? `${(day.totalVolumeMl / 1000).toFixed(1)} л`
-            : `${day.totalVolumeMl} мл`}
+            ? `${(day.totalVolumeMl / 1000).toFixed(1)}л`
+            : `${day.totalVolumeMl}мл`}
         </span>
       )}
     </button>

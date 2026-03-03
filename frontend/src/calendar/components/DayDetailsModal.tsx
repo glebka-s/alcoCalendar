@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import type { DayStatus } from '../../types/calendar';
+import { X, Trash2, Plus } from 'lucide-react';
+import type { DayStatus, AddEventRequest } from '../../types/calendar';
 import {
   useDayDetails,
   useDrinkTypes,
@@ -10,15 +11,15 @@ import {
 import AddEventForm from './AddEventForm';
 
 interface DayDetailsModalProps {
-  date: string; // yyyy-MM-dd
+  date: string;
   year: number;
   month: number;
   onClose: () => void;
 }
 
 const MONTH_NAMES = [
-  'январь','февраль','март','апрель','май','июнь',
-  'июль','август','сентябрь','октябрь','ноябрь','декабрь',
+  'январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
+  'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь',
 ];
 
 function formatDate(dateStr: string): string {
@@ -30,40 +31,23 @@ function formatTime(time: string | null): string {
   return time ? time.slice(0, 5) : '';
 }
 
-function StatusLabel({ status }: { status: DayStatus }) {
+function StatusBadge({ status }: { status: DayStatus }) {
   if (status === 'Sober') {
     return (
-      <span style={{
-        display: 'inline-flex', alignItems: 'center', gap: 6,
-        padding: '4px 12px', borderRadius: 20,
-        background: 'rgba(34, 197, 94, 0.15)',
-        border: '1px solid rgba(34, 197, 94, 0.4)',
-        color: '#4ade80', fontSize: 13, fontWeight: 600,
-      }}>
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sober/15 border border-sober/40 text-sober text-sm font-semibold">
         ✓ Не пил
       </span>
     );
   }
   if (status === 'Drank') {
     return (
-      <span style={{
-        display: 'inline-flex', alignItems: 'center', gap: 6,
-        padding: '4px 12px', borderRadius: 20,
-        background: 'rgba(239, 68, 68, 0.15)',
-        border: '1px solid rgba(239, 68, 68, 0.4)',
-        color: '#f87171', fontSize: 13, fontWeight: 600,
-      }}>
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-drinking/15 border border-drinking/40 text-drinking text-sm font-semibold">
         🍺 Пил
       </span>
     );
   }
   return (
-    <span style={{
-      padding: '4px 12px', borderRadius: 20,
-      background: 'rgba(148,163,184,0.1)',
-      border: '1px solid rgba(148,163,184,0.2)',
-      color: '#94a3b8', fontSize: 13,
-    }}>
+    <span className="inline-flex px-3 py-1 rounded-full bg-muted/10 border border-border text-muted text-sm">
       Не задано
     </span>
   );
@@ -81,7 +65,6 @@ export default function DayDetailsModal({ date, year, month, onClose }: DayDetai
   const addEventMutation = useAddEvent(date, year, month);
   const deleteEventMutation = useDeleteEvent(date, year, month);
 
-  // Close on Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -103,7 +86,7 @@ export default function DayDetailsModal({ date, year, month, onClose }: DayDetai
     setView('addDrink');
   };
 
-  const handleAddDrink = async (req: import('../../types/calendar').AddEventRequest) => {
+  const handleAddDrink = async (req: AddEventRequest) => {
     if (pendingStatus === 'Drank' && isUnset) {
       await setDayStatusMutation.mutateAsync({ date, request: { status: 'Drank', event: req } });
     } else {
@@ -127,82 +110,51 @@ export default function DayDetailsModal({ date, year, month, onClose }: DayDetai
   return (
     <div
       onClick={onClose}
-      style={{
-        position: 'fixed', inset: 0,
-        background: 'rgba(0,0,0,0.6)',
-        backdropFilter: 'blur(4px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        zIndex: 1000, padding: 16,
-      }}
+      className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-[fadeIn_150ms_ease-out]"
     >
       <div
         onClick={e => e.stopPropagation()}
-        style={{
-          background: '#1e293b',
-          border: '1px solid rgba(255,255,255,0.1)',
-          borderRadius: 16,
-          padding: 28,
-          width: '100%',
-          maxWidth: 480,
-          maxHeight: '90vh',
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 20,
-        }}
+        className="bg-surface border border-border rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto flex flex-col gap-5 animate-[scaleIn_150ms_ease-out]"
       >
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div className="flex justify-between items-start">
           <div>
-            <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#f1f5f9' }}>
-              {formatDate(date)}
-            </h2>
-            <div style={{ marginTop: 8 }}>
+            <h2 className="text-xl font-bold text-foreground">{formatDate(date)}</h2>
+            <div className="mt-2">
               {detailsLoading ? (
-                <span style={{ color: '#64748b', fontSize: 13 }}>Загрузка...</span>
+                <span className="text-muted text-sm">Загрузка...</span>
               ) : (
-                <StatusLabel status={dayDetails?.status ?? 'Unknown'} />
+                <StatusBadge status={dayDetails?.status ?? 'Unknown'} />
               )}
             </div>
           </div>
           <button
             onClick={onClose}
-            style={{
-              background: 'none', border: 'none',
-              color: '#64748b', fontSize: 22, cursor: 'pointer',
-              lineHeight: 1, padding: 4,
-            }}
+            className="p-1.5 rounded-lg hover:bg-card text-muted hover:text-foreground transition-colors cursor-pointer"
           >
-            ×
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Main content */}
+        {/* Details view */}
         {view === 'details' && !detailsLoading && (
           <>
-            {/* Events list */}
             {isDrank && dayDetails.events.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <h3 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <div className="flex flex-col gap-2">
+                <h3 className="text-xs font-semibold text-muted uppercase tracking-wider">
                   Записи
                 </h3>
                 {dayDetails.events.map(event => (
                   <div
                     key={event.id}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 12,
-                      padding: '10px 14px',
-                      background: 'rgba(255,255,255,0.04)',
-                      border: '1px solid rgba(255,255,255,0.08)',
-                      borderRadius: 10,
-                    }}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border"
                   >
-                    <span style={{ fontSize: 20 }}>🍺</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 600, fontSize: 14, color: '#e2e8f0' }}>
+                    <span className="text-xl">🍺</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm text-foreground">
                         {event.drinkTypeName}
                       </div>
-                      <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
+                      <div className="text-xs text-muted mt-0.5">
                         {event.volumeMl >= 1000
                           ? `${(event.volumeMl / 1000).toFixed(1)} л`
                           : `${event.volumeMl} мл`}
@@ -213,63 +165,40 @@ export default function DayDetailsModal({ date, year, month, onClose }: DayDetai
                     <button
                       onClick={() => handleDeleteEvent(event.id)}
                       disabled={isActionLoading}
-                      style={{
-                        background: 'none', border: 'none',
-                        color: '#ef4444', cursor: 'pointer',
-                        fontSize: 16, padding: 4, lineHeight: 1,
-                        opacity: isActionLoading ? 0.5 : 1,
-                      }}
+                      className="p-1.5 rounded-lg text-danger hover:bg-danger/10 transition-colors disabled:opacity-50 cursor-pointer"
                       title="Удалить"
                     >
-                      🗑
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 ))}
               </div>
             )}
 
-            {/* Empty state */}
             {isUnset && (
-              <p style={{ color: '#64748b', fontSize: 14, margin: 0, textAlign: 'center' }}>
+              <p className="text-muted text-sm text-center py-2">
                 День не заполнен. Выберите статус ниже.
               </p>
             )}
 
-            {/* Action buttons */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div className="flex flex-col gap-2.5">
               {isUnset && (
                 <>
-                  <h3 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <h3 className="text-xs font-semibold text-muted uppercase tracking-wider">
                     Как прошёл день?
                   </h3>
-                  <div style={{ display: 'flex', gap: 10 }}>
+                  <div className="flex gap-2.5">
                     <button
                       onClick={handleSoberClick}
                       disabled={isActionLoading}
-                      style={{
-                        flex: 1, padding: '12px 0',
-                        background: 'rgba(34, 197, 94, 0.15)',
-                        border: '1px solid rgba(34, 197, 94, 0.4)',
-                        borderRadius: 10, color: '#4ade80',
-                        cursor: isActionLoading ? 'not-allowed' : 'pointer',
-                        fontWeight: 600, fontSize: 15,
-                        opacity: isActionLoading ? 0.6 : 1,
-                      }}
+                      className="flex-1 py-3 rounded-xl bg-sober/15 border border-sober/40 text-sober font-semibold text-sm hover:bg-sober/25 disabled:opacity-50 transition-colors cursor-pointer"
                     >
                       ✓ Не пил
                     </button>
                     <button
                       onClick={handleDrankClick}
                       disabled={isActionLoading}
-                      style={{
-                        flex: 1, padding: '12px 0',
-                        background: 'rgba(239, 68, 68, 0.15)',
-                        border: '1px solid rgba(239, 68, 68, 0.4)',
-                        borderRadius: 10, color: '#f87171',
-                        cursor: isActionLoading ? 'not-allowed' : 'pointer',
-                        fontWeight: 600, fontSize: 15,
-                        opacity: isActionLoading ? 0.6 : 1,
-                      }}
+                      className="flex-1 py-3 rounded-xl bg-drinking/15 border border-drinking/40 text-drinking font-semibold text-sm hover:bg-drinking/25 disabled:opacity-50 transition-colors cursor-pointer"
                     >
                       🍺 Пил
                     </button>
@@ -278,34 +207,21 @@ export default function DayDetailsModal({ date, year, month, onClose }: DayDetai
               )}
 
               {!isUnset && (
-                <div style={{ display: 'flex', gap: 10 }}>
+                <div className="flex gap-2.5">
                   {isDrank && (
                     <button
                       onClick={() => { setPendingStatus(null); setView('addDrink'); }}
                       disabled={isActionLoading}
-                      style={{
-                        flex: 1, padding: '10px 0',
-                        background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                        border: 'none', borderRadius: 10,
-                        color: '#fff', cursor: 'pointer',
-                        fontWeight: 600, fontSize: 14,
-                        opacity: isActionLoading ? 0.6 : 1,
-                      }}
+                      className="flex-1 py-2.5 rounded-xl bg-primary text-white font-semibold text-sm hover:bg-primary-hover disabled:opacity-50 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                     >
-                      + Добавить напиток
+                      <Plus className="w-4 h-4" />
+                      Добавить напиток
                     </button>
                   )}
                   <button
                     onClick={() => setView('setStatus')}
                     disabled={isActionLoading}
-                    style={{
-                      flex: 1, padding: '10px 0',
-                      background: 'rgba(255,255,255,0.06)',
-                      border: '1px solid rgba(255,255,255,0.12)',
-                      borderRadius: 10, color: '#94a3b8',
-                      cursor: 'pointer', fontSize: 14,
-                      opacity: isActionLoading ? 0.6 : 1,
-                    }}
+                    className="flex-1 py-2.5 rounded-xl bg-card border border-border text-muted text-sm hover:text-foreground hover:border-muted disabled:opacity-50 transition-colors cursor-pointer"
                   >
                     Изменить статус
                   </button>
@@ -317,49 +233,27 @@ export default function DayDetailsModal({ date, year, month, onClose }: DayDetai
 
         {/* Change status view */}
         {view === 'setStatus' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: '#f1f5f9' }}>
-              Изменить статус дня
-            </h3>
-            <div style={{ display: 'flex', gap: 10 }}>
+          <div className="flex flex-col gap-3">
+            <h3 className="text-base font-semibold text-foreground">Изменить статус дня</h3>
+            <div className="flex gap-2.5">
               <button
                 onClick={handleSoberClick}
                 disabled={isActionLoading}
-                style={{
-                  flex: 1, padding: '12px 0',
-                  background: 'rgba(34, 197, 94, 0.15)',
-                  border: '1px solid rgba(34, 197, 94, 0.4)',
-                  borderRadius: 10, color: '#4ade80',
-                  cursor: isActionLoading ? 'not-allowed' : 'pointer',
-                  fontWeight: 600, fontSize: 15,
-                }}
+                className="flex-1 py-3 rounded-xl bg-sober/15 border border-sober/40 text-sober font-semibold text-sm hover:bg-sober/25 disabled:opacity-50 transition-colors cursor-pointer"
               >
                 ✓ Не пил
               </button>
               <button
                 onClick={handleDrankClick}
                 disabled={isActionLoading}
-                style={{
-                  flex: 1, padding: '12px 0',
-                  background: 'rgba(239, 68, 68, 0.15)',
-                  border: '1px solid rgba(239, 68, 68, 0.4)',
-                  borderRadius: 10, color: '#f87171',
-                  cursor: isActionLoading ? 'not-allowed' : 'pointer',
-                  fontWeight: 600, fontSize: 15,
-                }}
+                className="flex-1 py-3 rounded-xl bg-drinking/15 border border-drinking/40 text-drinking font-semibold text-sm hover:bg-drinking/25 disabled:opacity-50 transition-colors cursor-pointer"
               >
                 🍺 Пил
               </button>
             </div>
             <button
               onClick={() => setView('details')}
-              style={{
-                padding: '10px 0',
-                background: 'none',
-                border: '1px solid rgba(255,255,255,0.12)',
-                borderRadius: 10, color: '#64748b',
-                cursor: 'pointer', fontSize: 14,
-              }}
+              className="py-2.5 rounded-xl border border-border text-muted text-sm hover:text-foreground hover:border-muted transition-colors cursor-pointer"
             >
               Назад
             </button>
@@ -368,14 +262,12 @@ export default function DayDetailsModal({ date, year, month, onClose }: DayDetai
 
         {/* Add drink form */}
         {view === 'addDrink' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: '#f1f5f9' }}>
-              Добавить напиток
-            </h3>
+          <div className="flex flex-col gap-4">
+            <h3 className="text-base font-semibold text-foreground">Добавить напиток</h3>
             <AddEventForm
               drinkTypes={drinkTypes}
               onSubmit={handleAddDrink}
-              onCancel={() => setView(isUnset ? 'details' : 'details')}
+              onCancel={() => setView('details')}
               isLoading={isActionLoading}
             />
           </div>

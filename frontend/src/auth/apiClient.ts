@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { toast } from 'sonner'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000'
 
@@ -28,6 +29,7 @@ export function getStoredTokens() {
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 15000,
 })
 
 apiClient.interceptors.request.use(config => {
@@ -58,9 +60,7 @@ async function refreshTokens(): Promise<string | null> {
 
     const response = await axios.post<{ accessToken: string; refreshToken: string }>(
       `${API_BASE_URL}/auth/refresh`,
-      {
-        refreshToken: currentRefreshToken,
-      },
+      { refreshToken: currentRefreshToken },
     )
 
     setAuthTokens(response.data.accessToken, response.data.refreshToken)
@@ -83,16 +83,32 @@ apiClient.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    if (error.response?.status === 401) {
+    if (error.code === 'ECONNABORTED') {
+      toast.error('Сервер не отвечает. Попробуйте позже.')
+      return Promise.reject(error)
+    }
+
+    if (!error.response) {
+      toast.error('Нет подключения к интернету')
+      return Promise.reject(error)
+    }
+
+    if (error.response.status === 401) {
       originalRequest._retry = true
       const newAccess = await refreshTokens()
       if (newAccess) {
         originalRequest.headers.set('Authorization', `Bearer ${newAccess}`)
         return apiClient(originalRequest)
       }
+      clearAuthTokens()
+      window.location.href = '/login'
+      return Promise.reject(error)
+    }
+
+    if (error.response.status >= 500) {
+      toast.error('Ошибка сервера. Попробуйте позже.')
     }
 
     return Promise.reject(error)
   },
 )
-

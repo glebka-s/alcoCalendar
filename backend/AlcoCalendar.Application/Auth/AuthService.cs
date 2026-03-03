@@ -97,5 +97,29 @@ public sealed class AuthService : IAuthService
         await _users.SaveChangesAsync(cancellationToken);
         return tokens;
     }
+
+    public async Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        var user = await _users.FindByIdAsync(userId, cancellationToken)
+            ?? throw new InvalidOperationException("User not found.");
+
+        if (!_passwordHasher.Verify(currentPassword, user.PasswordHash.Value))
+            throw new InvalidOperationException("Current password is incorrect.");
+
+        if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 8)
+            throw new ArgumentException("New password must be at least 8 characters long.", nameof(newPassword));
+
+        user.SetPasswordHash(new Domain.Users.PasswordHash(_passwordHasher.Hash(newPassword)), nowUtc);
+        await _users.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task ChangeNameAsync(Guid userId, string name, DateTime nowUtc, CancellationToken cancellationToken)
+    {
+        var user = await _users.FindByIdAsync(userId, cancellationToken)
+            ?? throw new InvalidOperationException("User not found.");
+
+        user.SetName(name, nowUtc);
+        await _users.SaveChangesAsync(cancellationToken);
+    }
 }
 

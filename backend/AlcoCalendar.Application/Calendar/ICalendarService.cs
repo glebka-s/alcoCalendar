@@ -9,4 +9,5 @@ public interface ICalendarService
     Task SetDayStatusAsync(Guid userId, DateOnly date, DayStatus status, CancellationToken ct = default);
     Task<Guid> AddConsumptionEventAsync(Guid userId, DateOnly date, int drinkTypeId, int volumeMl, string? notes, TimeOnly? time, CancellationToken ct = default);
     Task DeleteConsumptionEventAsync(Guid userId, DateOnly date, Guid eventId, CancellationToken ct = default);
+    Task<CalendarStatsResult> GetStatsAsync(Guid userId, int months, CancellationToken ct = default);
 }

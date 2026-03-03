@@ -8,26 +8,6 @@ interface AddEventFormProps {
   isLoading: boolean;
 }
 
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '10px 12px',
-  background: 'rgba(255,255,255,0.06)',
-  border: '1px solid rgba(255,255,255,0.15)',
-  borderRadius: 8,
-  color: '#e2e8f0',
-  fontSize: 14,
-  outline: 'none',
-  boxSizing: 'border-box',
-};
-
-const labelStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 6,
-  fontSize: 13,
-  color: '#94a3b8',
-};
-
 const DEFAULT_VOLUMES: Record<string, number> = {
   'Пиво': 500,
   'Вино': 100,
@@ -40,6 +20,9 @@ function getDefaultVolume(drinkTypes: DrinkType[], id: number): string {
   const name = drinkTypes.find(d => d.id === id)?.name ?? '';
   return String(DEFAULT_VOLUMES[name] ?? 50);
 }
+
+const inputClasses =
+  'w-full px-3 py-2.5 bg-card border border-border rounded-lg text-foreground text-sm outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30 transition-colors';
 
 export default function AddEventForm({ drinkTypes, onSubmit, onCancel, isLoading }: AddEventFormProps) {
   const initialId = drinkTypes[0]?.id ?? 1;
@@ -61,8 +44,8 @@ export default function AddEventForm({ drinkTypes, onSubmit, onCancel, isLoading
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <label style={labelStyle}>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+      <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">
         Тип напитка
         <select
           value={drinkTypeId}
@@ -71,18 +54,18 @@ export default function AddEventForm({ drinkTypes, onSubmit, onCancel, isLoading
             setDrinkTypeId(id);
             setVolumeStr(getDefaultVolume(drinkTypes, id));
           }}
-          style={{ ...inputStyle, cursor: 'pointer' }}
+          className={`${inputClasses} cursor-pointer`}
           required
         >
           {drinkTypes.map(dt => (
-            <option key={dt.id} value={dt.id} style={{ background: '#1e293b' }}>
+            <option key={dt.id} value={dt.id} className="bg-surface">
               {dt.name}
             </option>
           ))}
         </select>
       </label>
 
-      <label style={labelStyle}>
+      <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">
         Объём (мл)
         <input
           type="number"
@@ -95,66 +78,46 @@ export default function AddEventForm({ drinkTypes, onSubmit, onCancel, isLoading
           min={50}
           max={10000}
           step={50}
-          style={inputStyle}
+          className={inputClasses}
           required
         />
       </label>
 
-      <label style={labelStyle}>
+      <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">
         Время (необязательно)
         <input
           type="time"
           value={time}
           onChange={e => setTime(e.target.value)}
-          style={inputStyle}
+          className={inputClasses}
         />
       </label>
 
-      <label style={labelStyle}>
+      <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">
         Заметка (необязательно)
         <input
           type="text"
           value={notes}
           onChange={e => setNotes(e.target.value)}
           placeholder="Например: за ужином"
-          style={inputStyle}
+          className={inputClasses}
           maxLength={500}
         />
       </label>
 
-      <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+      <div className="flex gap-2.5 mt-1">
         <button
           type="button"
           onClick={onCancel}
           disabled={isLoading}
-          style={{
-            flex: 1,
-            padding: '10px 0',
-            background: 'rgba(255,255,255,0.07)',
-            border: '1px solid rgba(255,255,255,0.12)',
-            borderRadius: 8,
-            color: '#94a3b8',
-            cursor: 'pointer',
-            fontSize: 14,
-          }}
+          className="flex-1 py-2.5 rounded-xl bg-card border border-border text-muted text-sm hover:text-foreground transition-colors cursor-pointer"
         >
-          Пропустить
+          Отмена
         </button>
         <button
           type="submit"
           disabled={isLoading}
-          style={{
-            flex: 2,
-            padding: '10px 0',
-            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-            border: 'none',
-            borderRadius: 8,
-            color: '#fff',
-            cursor: isLoading ? 'not-allowed' : 'pointer',
-            fontWeight: 600,
-            fontSize: 14,
-            opacity: isLoading ? 0.7 : 1,
-          }}
+          className="flex-[2] py-2.5 rounded-xl bg-primary text-white font-semibold text-sm hover:bg-primary-hover disabled:opacity-60 disabled:cursor-not-allowed transition-colors cursor-pointer"
         >
           {isLoading ? 'Сохранение...' : 'Добавить'}
         </button>

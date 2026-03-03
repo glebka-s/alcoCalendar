@@ -45,6 +45,12 @@ public static class CalendarEndpoints
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound);
 
+        group.MapGet("/stats", GetStats)
+            .WithName("GetCalendarStats")
+            .WithSummary("Получить агрегированную статистику")
+            .Produces<CalendarStatsResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest);
+
         return app;
     }
 
@@ -188,6 +194,31 @@ public static class CalendarEndpoints
         catch (CalendarNotFoundException ex)
         {
             return Results.NotFound(new { error = ex.Message });
+        }
+    }
+
+    // GET /calendar/stats?months=3
+    private static async Task<IResult> GetStats(
+        [FromQuery] int months,
+        ICalendarService calendarService,
+        HttpContext ctx,
+        CancellationToken ct)
+    {
+        var userId = ExtractUserId(ctx);
+        try
+        {
+            var result = await calendarService.GetStatsAsync(userId, months, ct);
+            var weekly = result.WeeklyBreakdown.Select(w => new WeeklyBreakdownResponse(
+                w.WeekStart.ToString("yyyy-MM-dd"), w.SoberDays, w.DrankDays, w.VolumeMl)).ToList();
+
+            return Results.Ok(new CalendarStatsResponse(
+                result.TotalDays, result.SoberDays, result.DrankDays, result.UnknownDays,
+                result.SoberPercent, result.CurrentSoberStreak, result.LongestSoberStreak,
+                result.TotalVolumeMl, result.FavoriteDrink, weekly));
+        }
+        catch (CalendarValidationException ex)
+        {
+            return Results.BadRequest(new { error = ex.Message });
         }
     }
 

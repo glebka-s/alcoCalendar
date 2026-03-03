@@ -47,3 +47,23 @@ export interface AddEventRequest {
 export interface AddEventResponse {
   id: string;
 }
+
+export interface WeeklyBreakdown {
+  weekStart: string;
+  soberDays: number;
+  drankDays: number;
+  volumeMl: number;
+}
+
+export interface CalendarStats {
+  totalDays: number;
+  soberDays: number;
+  drankDays: number;
+  unknownDays: number;
+  soberPercent: number;
+  currentSoberStreak: number;
+  longestSoberStreak: number;
+  totalVolumeMl: number;
+  favoriteDrink: string | null;
+  weeklyBreakdown: WeeklyBreakdown[];
+}

@@ -23,3 +23,21 @@ public sealed record DayDetailsResult(
     DateOnly Date,
     DayStatus Status,
     IReadOnlyList<ConsumptionEventItem> Events);
+
+public sealed record WeeklyBreakdownItem(
+    DateOnly WeekStart,
+    int SoberDays,
+    int DrankDays,
+    int VolumeMl);
+
+public sealed record CalendarStatsResult(
+    int TotalDays,
+    int SoberDays,
+    int DrankDays,
+    int UnknownDays,
+    double SoberPercent,
+    int CurrentSoberStreak,
+    int LongestSoberStreak,
+    int TotalVolumeMl,
+    string? FavoriteDrink,
+    IReadOnlyList<WeeklyBreakdownItem> WeeklyBreakdown);

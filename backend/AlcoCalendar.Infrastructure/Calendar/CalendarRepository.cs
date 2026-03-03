@@ -69,4 +69,14 @@ public sealed class CalendarRepository : ICalendarRepository
 
     public async Task<Dictionary<int, string>> GetDrinkTypeNamesAsync(CancellationToken ct = default) =>
         await _db.DrinkTypes.ToDictionaryAsync(d => d.Id, d => d.Name, ct);
+
+    public Task<List<DaySummary>> GetSummariesInRangeAsync(Guid userId, DateOnly from, DateOnly to, CancellationToken ct = default) =>
+        _db.DaySummaries
+            .Where(s => s.UserId == userId && s.Date >= from && s.Date <= to)
+            .ToListAsync(ct);
+
+    public Task<List<ConsumptionEvent>> GetEventsInRangeAsync(Guid userId, DateOnly from, DateOnly to, CancellationToken ct = default) =>
+        _db.ConsumptionEvents
+            .Where(e => e.UserId == userId && e.Date >= from && e.Date <= to)
+            .ToListAsync(ct);
 }

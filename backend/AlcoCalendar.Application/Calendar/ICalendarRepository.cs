@@ -14,4 +14,6 @@ public interface ICalendarRepository
     Task DeleteConsumptionEventAsync(ConsumptionEvent evt, CancellationToken ct = default);
     Task<bool> DrinkTypeExistsAsync(int drinkTypeId, CancellationToken ct = default);
     Task<Dictionary<int, string>> GetDrinkTypeNamesAsync(CancellationToken ct = default);
+    Task<List<DaySummary>> GetSummariesInRangeAsync(Guid userId, DateOnly from, DateOnly to, CancellationToken ct = default);
+    Task<List<ConsumptionEvent>> GetEventsInRangeAsync(Guid userId, DateOnly from, DateOnly to, CancellationToken ct = default);
 }
