@@ -1,45 +1,40 @@
-import { useState } from 'react';
-import {
-  TrendingUp,
-  Flame,
-  Trophy,
-  Beer,
-  Droplets,
-} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Flame, TrendingDown, DollarSign, Users } from 'lucide-react';
 import { useStats } from '../hooks/useCalendar';
 import NetworkError from '../components/NetworkError';
 
+const DRINK_ICONS: Record<string, string> = {
+  'Пиво': '🍺',
+  'Вино': '🍷',
+  'Крепкий алкоголь': '🥃',
+  'Коктейль': '🍸',
+  'Виски': '🥃',
+  'Сидр': '🍺',
+};
+
 export default function StatsPage() {
-  const [months, setMonths] = useState(3);
-  const { data, isLoading, isError, refetch } = useStats(months);
+  const { data, isLoading, isError, refetch } = useStats(3);
+
+  const maxBarH = 100;
+  const drankPct = data && data.totalDays > 0
+    ? Math.round((data.drankDays / data.totalDays) * 100)
+    : 0;
 
   return (
-    <div className="flex flex-col h-full p-4 sm:p-6 gap-6 overflow-auto">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
-          Статистика
-        </h1>
-        <div className="flex gap-1.5">
-          {[1, 3, 6, 12].map(m => (
-            <button
-              key={m}
-              onClick={() => setMonths(m)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-                months === m
-                  ? 'bg-primary text-white'
-                  : 'bg-card border border-border text-muted hover:text-foreground'
-              }`}
-            >
-              {m === 12 ? '1 год' : `${m} мес`}
-            </button>
-          ))}
-        </div>
-      </div>
+    <div className="mx-auto max-w-5xl px-4 pt-6 md:px-8 md:pt-10">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="mb-6 md:mb-8"
+      >
+        <h1 className="font-display text-2xl font-bold md:text-3xl">Статистика</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Аналитика по твоему потреблению</p>
+      </motion.div>
 
       {isLoading && (
-        <div className="flex-1 flex items-center justify-center text-muted">
+        <div className="flex items-center justify-center py-16 text-muted-foreground">
           <div className="text-center">
-            <div className="text-4xl mb-3 animate-spin">⏳</div>
+            <div className="text-3xl mb-2 animate-spin">⏳</div>
             <div className="text-sm">Загрузка...</div>
           </div>
         </div>
@@ -49,159 +44,138 @@ export default function StatsPage() {
 
       {data && (
         <>
-          {/* Metric cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            <MetricCard
-              icon={TrendingUp}
-              label="Трезвых дней"
-              value={`${data.soberPercent}%`}
-              subtitle={`${data.soberDays} из ${data.totalDays}`}
-              variant="sober"
-            />
-            <MetricCard
-              icon={Flame}
-              label="Текущая серия"
-              value={`${data.currentSoberStreak}`}
-              subtitle="дней подряд"
-              variant="primary"
-            />
-            <MetricCard
-              icon={Trophy}
-              label="Макс. серия"
-              value={`${data.longestSoberStreak}`}
-              subtitle="дней подряд"
-              variant="primary"
-            />
-            <MetricCard
-              icon={Beer}
-              label="Любимый напиток"
-              value={data.favoriteDrink ?? '—'}
-              variant="drinking"
-            />
-            <MetricCard
-              icon={Droplets}
-              label="Общий объём"
-              value={
-                data.totalVolumeMl >= 1000
-                  ? `${(data.totalVolumeMl / 1000).toFixed(1)}л`
-                  : `${data.totalVolumeMl}мл`
-              }
-              variant="muted"
-            />
+          {/* 4-column top stat cards */}
+          <div className="grid grid-cols-2 gap-3 mb-6 md:grid-cols-4 md:gap-4">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-2xl bg-sober/8 p-4 ring-1 ring-sober/15 md:p-5"
+            >
+              <div className="text-3xl font-bold text-sober md:text-4xl">{data.soberPercent}%</div>
+              <div className="text-xs text-muted-foreground mt-1">Трезвых дней</div>
+              <div className="text-sm text-sober mt-0.5">{data.soberDays} из {data.totalDays}</div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="rounded-2xl bg-drinking/8 p-4 ring-1 ring-drinking/15 md:p-5"
+            >
+              <div className="text-3xl font-bold text-drinking md:text-4xl">{drankPct}%</div>
+              <div className="text-xs text-muted-foreground mt-1">С алкоголем</div>
+              <div className="text-sm text-drinking mt-0.5">{data.drankDays} из {data.totalDays}</div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="rounded-2xl bg-card p-4 ring-1 ring-border md:p-5"
+            >
+              <Flame className="h-5 w-5 text-primary mb-2" />
+              <div className="text-2xl font-bold md:text-3xl">{data.currentSoberStreak}</div>
+              <div className="text-xs text-muted-foreground">Серия трезвых дней</div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="rounded-2xl bg-card p-4 ring-1 ring-border md:p-5"
+            >
+              {data.favoriteDrink ? (
+                <>
+                  <span className="text-2xl">{DRINK_ICONS[data.favoriteDrink] ?? '🍸'}</span>
+                  <div className="text-lg font-bold mt-1">{data.favoriteDrink}</div>
+                  <div className="text-xs text-muted-foreground">1 раз · фаворит</div>
+                </>
+              ) : (
+                <>
+                  <span className="text-2xl">🍸</span>
+                  <div className="text-lg font-bold mt-1">Нет данных</div>
+                  <div className="text-xs text-muted-foreground">фаворит</div>
+                </>
+              )}
+            </motion.div>
           </div>
 
-          {/* Weekly chart */}
-          {data.weeklyBreakdown.length > 0 && (
-            <div className="rounded-2xl bg-card border border-border p-5">
-              <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">
-                По неделям
-              </h2>
-              <div className="flex items-end gap-1 h-40">
-                {data.weeklyBreakdown.map((w, i) => {
-                  const total = w.soberDays + w.drankDays;
-                  const maxDays = 7;
-                  const soberH = total > 0 ? (w.soberDays / maxDays) * 100 : 0;
-                  const drankH = total > 0 ? (w.drankDays / maxDays) * 100 : 0;
-
-                  return (
-                    <div
-                      key={i}
-                      className="flex-1 flex flex-col items-center justify-end h-full gap-0.5"
-                      title={`${w.weekStart}: ${w.soberDays} трезвых, ${w.drankDays} пил`}
-                    >
-                      <div className="w-full flex flex-col gap-px">
-                        {drankH > 0 && (
-                          <div
-                            className="w-full bg-drinking/60 rounded-t-sm"
-                            style={{ height: `${drankH}%`, minHeight: drankH > 0 ? 2 : 0 }}
-                          />
-                        )}
-                        {soberH > 0 && (
-                          <div
-                            className="w-full bg-sober/60 rounded-b-sm"
-                            style={{ height: `${soberH}%`, minHeight: soberH > 0 ? 2 : 0 }}
-                          />
-                        )}
+          {/* Weekly chart — full width */}
+          <div className="space-y-6">
+            {data.weeklyBreakdown.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="rounded-2xl bg-card p-5 ring-1 ring-border md:p-6"
+              >
+                <h3 className="font-display text-sm font-semibold mb-5">По неделям</h3>
+                <div className="flex items-end gap-4">
+                  {data.weeklyBreakdown.map((w, i) => {
+                    const total = w.soberDays + w.drankDays;
+                    const soberH = total > 0 ? (w.soberDays / 7) * maxBarH : 0;
+                    const drankH = total > 0 ? (w.drankDays / 7) * maxBarH : 0;
+                    return (
+                      <div key={i} className="flex-1 space-y-1.5">
+                        <div className="flex flex-col gap-1">
+                          {soberH > 0 && (
+                            <div
+                              className="w-full rounded-t-lg bg-sober/25"
+                              style={{ height: soberH }}
+                            />
+                          )}
+                          {drankH > 0 && (
+                            <div
+                              className="w-full rounded-b-lg bg-drinking/25"
+                              style={{ height: drankH }}
+                            />
+                          )}
+                        </div>
+                        <div className="text-center text-[10px] text-muted-foreground">Нед {i + 1}</div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="flex gap-4 mt-3 text-xs text-muted">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-sm bg-sober/60" />
-                  Трезвые
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-sm bg-drinking/60" />
-                  Пил
-                </span>
-              </div>
-            </div>
-          )}
+                    );
+                  })}
+                </div>
+                <div className="mt-4 flex gap-4 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block h-2.5 w-2.5 rounded-full bg-sober/30" /> Трезвый
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block h-2.5 w-2.5 rounded-full bg-drinking/30" /> Пил
+                  </span>
+                </div>
+              </motion.div>
+            )}
 
-          {/* Coming soon cards */}
-          <div className="grid sm:grid-cols-2 gap-3">
-            <ComingSoonCard title="Детальная аналитика" desc="Тренды по месяцам и сравнение периодов" />
-            <ComingSoonCard title="Учёт расходов" desc="Сколько денег уходит на алкоголь" />
           </div>
+
+          {/* Coming soon — full width below */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-6 space-y-3"
+          >
+            <h3 className="font-display text-sm font-semibold text-muted-foreground">Скоро</h3>
+            {[
+              { icon: DollarSign, title: 'Учёт трат', desc: 'Сколько потрачено на алкоголь за месяц' },
+              { icon: TrendingDown, title: 'Тренды', desc: 'Динамика потребления за 3 месяца' },
+              { icon: Users, title: 'Социальная статистика', desc: 'Сравни себя с другими' },
+            ].map((f) => (
+              <div
+                key={f.title}
+                className="flex items-center gap-4 rounded-2xl border border-dashed border-border bg-card/50 p-4 opacity-50"
+              >
+                <f.icon className="h-5 w-5 text-primary/50" />
+                <div>
+                  <div className="text-sm font-medium">{f.title}</div>
+                  <div className="text-xs text-muted-foreground">{f.desc}</div>
+                </div>
+              </div>
+            ))}
+          </motion.div>
         </>
       )}
-    </div>
-  );
-}
-
-function MetricCard({
-  icon: Icon,
-  label,
-  value,
-  subtitle,
-  variant,
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: string;
-  subtitle?: string;
-  variant: 'sober' | 'drinking' | 'primary' | 'muted';
-}) {
-  const colorClass =
-    variant === 'sober'
-      ? 'text-sober'
-      : variant === 'drinking'
-        ? 'text-drinking'
-        : variant === 'primary'
-          ? 'text-primary'
-          : 'text-muted';
-
-  const iconBg =
-    variant === 'sober'
-      ? 'bg-sober/15'
-      : variant === 'drinking'
-        ? 'bg-drinking/15'
-        : variant === 'primary'
-          ? 'bg-primary/15'
-          : 'bg-card';
-
-  return (
-    <div className="rounded-2xl bg-card border border-border p-4 flex flex-col gap-2">
-      <div className={`w-9 h-9 rounded-lg ${iconBg} flex items-center justify-center`}>
-        <Icon className={`w-4.5 h-4.5 ${colorClass}`} />
-      </div>
-      <span className={`text-2xl font-extrabold leading-none ${colorClass}`}>{value}</span>
-      <span className="text-xs text-muted">{label}</span>
-      {subtitle && <span className="text-[10px] text-muted/70">{subtitle}</span>}
-    </div>
-  );
-}
-
-function ComingSoonCard({ title, desc }: { title: string; desc: string }) {
-  return (
-    <div className="rounded-2xl border-2 border-dashed border-border p-5 text-center">
-      <h3 className="font-semibold text-sm text-muted mb-1">{title}</h3>
-      <p className="text-xs text-muted/70">{desc}</p>
-      <span className="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-card text-[10px] text-muted uppercase tracking-wider">
-        Скоро
-      </span>
     </div>
   );
 }

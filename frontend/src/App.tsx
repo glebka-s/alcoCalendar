@@ -9,7 +9,7 @@ import { RegisterPage } from './auth/RegisterPage'
 import LandingPage from './pages/LandingPage'
 import CalendarPage from './calendar/CalendarPage'
 import StatsPage from './stats/StatsPage'
-import SettingsPage from './settings/SettingsPage'
+import ProfilePage from './profile/ProfilePage'
 import AppLayout from './components/AppLayout'
 
 const queryClient = new QueryClient({
@@ -43,7 +43,7 @@ function App() {
             <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
               <Route path="/calendar" element={<CalendarPage />} />
               <Route path="/stats" element={<StatsPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
@@ -52,9 +52,9 @@ function App() {
           position="top-center"
           toastOptions={{
             style: {
-              background: 'oklch(0.25 0.02 55)',
-              border: '1px solid oklch(0.32 0.02 55)',
-              color: 'oklch(0.93 0.01 80)',
+              background: 'hsl(225 18% 11%)',
+              border: '1px solid hsl(225 14% 16%)',
+              color: 'hsl(220 20% 93%)',
             },
           }}
         />

@@ -1,11 +1,15 @@
 import { Outlet } from 'react-router-dom';
 import BottomNav from './BottomNav';
+import Sidebar from './Sidebar';
 
 export default function AppLayout() {
   return (
-    <div className="flex flex-col h-full bg-background">
-      <main className="flex-1 min-h-0 overflow-auto">
-        <Outlet />
+    <div className="dark min-h-screen bg-background">
+      <Sidebar />
+      <main className="lg:ml-[220px]">
+        <div className="min-h-screen">
+          <Outlet />
+        </div>
       </main>
       <BottomNav />
     </div>
