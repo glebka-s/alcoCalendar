@@ -63,6 +63,7 @@ export interface CalendarStats {
   soberPercent: number;
   currentSoberStreak: number;
   longestSoberStreak: number;
+  longestDrinkingStreak: number;
   totalVolumeMl: number;
   favoriteDrink: string | null;
   weeklyBreakdown: WeeklyBreakdown[];

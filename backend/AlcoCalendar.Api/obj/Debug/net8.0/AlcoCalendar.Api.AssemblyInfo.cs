@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AlcoCalendar.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+01ce958dda5f46ba39e611546d6f4791f7b49958")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f7e31e295cfc23c66df0587e0f0f7cfa4a744865")]
 [assembly: System.Reflection.AssemblyProductAttribute("AlcoCalendar.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AlcoCalendar.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

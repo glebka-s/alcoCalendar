@@ -36,7 +36,7 @@ public static class UserEndpoints
         var user = await users.FindByIdAsync(userId, ct);
         if (user is null) return Results.NotFound();
 
-        return Results.Ok(new ProfileResponse(userId.ToString(), user.Email.Value, user.Name));
+        return Results.Ok(new ProfileResponse(userId.ToString(), user.Email.Value, user.Name, user.CreatedAtUtc));
     }
 
     private static async Task<IResult> ChangeName(
@@ -84,6 +84,6 @@ public static class UserEndpoints
     }
 }
 
-public sealed record ProfileResponse(string UserId, string Email, string? Name);
+public sealed record ProfileResponse(string UserId, string Email, string? Name, DateTime CreatedAtUtc);
 public sealed record ChangeNameRequest([Required] string Name);
 public sealed record ChangePasswordRequest([Required] string CurrentPassword, [Required] string NewPassword);

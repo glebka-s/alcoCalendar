@@ -214,7 +214,7 @@ public static class CalendarEndpoints
             return Results.Ok(new CalendarStatsResponse(
                 result.TotalDays, result.SoberDays, result.DrankDays, result.UnknownDays,
                 result.SoberPercent, result.CurrentSoberStreak, result.LongestSoberStreak,
-                result.TotalVolumeMl, result.FavoriteDrink, weekly));
+                result.LongestDrinkingStreak, result.TotalVolumeMl, result.FavoriteDrink, weekly));
         }
         catch (CalendarValidationException ex)
         {

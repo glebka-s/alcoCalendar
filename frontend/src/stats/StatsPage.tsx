@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Flame, TrendingDown, DollarSign, Users } from 'lucide-react';
+import { Flame, BarChart3, DollarSign, Users } from 'lucide-react';
 import { useStats } from '../hooks/useCalendar';
 import NetworkError from '../components/NetworkError';
 
@@ -21,7 +21,7 @@ export default function StatsPage() {
     : 0;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pt-6 md:px-8 md:pt-10">
+    <div className="mx-auto max-w-5xl px-4 pt-6 pb-16 md:px-8 md:pt-10">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -73,9 +73,9 @@ export default function StatsPage() {
               transition={{ delay: 0.1 }}
               className="rounded-2xl bg-card p-4 ring-1 ring-border md:p-5"
             >
-              <Flame className="h-5 w-5 text-primary mb-2" />
-              <div className="text-2xl font-bold md:text-3xl">{data.currentSoberStreak}</div>
-              <div className="text-xs text-muted-foreground">Серия трезвых дней</div>
+              <Flame className="h-5 w-5 text-drinking mb-2" />
+              <div className="text-2xl font-bold md:text-3xl">{data.longestDrinkingStreak}</div>
+              <div className="text-xs text-muted-foreground">Серия дней с алкоголем</div>
             </motion.div>
 
             <motion.div
@@ -88,13 +88,13 @@ export default function StatsPage() {
                 <>
                   <span className="text-2xl">{DRINK_ICONS[data.favoriteDrink] ?? '🍸'}</span>
                   <div className="text-lg font-bold mt-1">{data.favoriteDrink}</div>
-                  <div className="text-xs text-muted-foreground">1 раз · фаворит</div>
+                  <div className="text-xs text-muted-foreground">Любимый напиток</div>
                 </>
               ) : (
                 <>
                   <span className="text-2xl">🍸</span>
                   <div className="text-lg font-bold mt-1">Нет данных</div>
-                  <div className="text-xs text-muted-foreground">фаворит</div>
+                  <div className="text-xs text-muted-foreground">Любимый напиток</div>
                 </>
               )}
             </motion.div>
@@ -154,25 +154,27 @@ export default function StatsPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="mt-6 space-y-3"
+            className="mt-6"
           >
-            <h3 className="font-display text-sm font-semibold text-muted-foreground">Скоро</h3>
-            {[
-              { icon: DollarSign, title: 'Учёт трат', desc: 'Сколько потрачено на алкоголь за месяц' },
-              { icon: TrendingDown, title: 'Тренды', desc: 'Динамика потребления за 3 месяца' },
-              { icon: Users, title: 'Социальная статистика', desc: 'Сравни себя с другими' },
-            ].map((f) => (
-              <div
-                key={f.title}
-                className="flex items-center gap-4 rounded-2xl border border-dashed border-border bg-card/50 p-4 opacity-50"
-              >
-                <f.icon className="h-5 w-5 text-primary/50" />
-                <div>
-                  <div className="text-sm font-medium">{f.title}</div>
-                  <div className="text-xs text-muted-foreground">{f.desc}</div>
+            <h3 className="font-display text-sm font-semibold text-muted-foreground mb-3">Скоро</h3>
+            <div className="space-y-3">
+              {[
+                { icon: BarChart3, title: 'Детальная аналитика', desc: 'Динамика потребления по неделям' },
+                { icon: DollarSign, title: 'Учёт трат', desc: 'Сколько потрачено на алкоголь за месяц' },
+                { icon: Users, title: 'Социальное', desc: 'Сравни себя с другими' },
+              ].map((f) => (
+                <div
+                  key={f.title}
+                  className="flex items-center gap-4 rounded-2xl border border-dashed border-border bg-card/50 p-4 opacity-50"
+                >
+                  <f.icon className="h-5 w-5 text-primary/50" />
+                  <div>
+                    <div className="text-sm font-medium">{f.title}</div>
+                    <div className="text-xs text-muted-foreground">{f.desc}</div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </motion.div>
         </>
       )}

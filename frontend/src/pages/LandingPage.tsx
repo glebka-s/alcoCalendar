@@ -228,10 +228,9 @@ export default function LandingPage() {
             <h2 className="font-display mb-2 text-3xl font-bold">Скоро в Алкокалендаре</h2>
           </motion.div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-3">
             {[
-              { icon: TrendingDown, title: 'Аналитика', desc: 'Динамика по неделям' },
-              { icon: Wine, title: 'Любимый напиток', desc: 'Статистика + геймификация' },
+              { icon: TrendingDown, title: 'Детальная аналитика', desc: 'Динамика по неделям' },
               { icon: DollarSign, title: 'Учёт трат', desc: 'Сколько потрачено' },
               { icon: Users, title: 'Социальное', desc: 'Сравнение с другими' },
             ].map((f, i) => (

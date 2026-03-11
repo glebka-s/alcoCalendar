@@ -79,4 +79,15 @@ public sealed class CalendarRepository : ICalendarRepository
         _db.ConsumptionEvents
             .Where(e => e.UserId == userId && e.Date >= from && e.Date <= to)
             .ToListAsync(ct);
+
+    public Task<List<DaySummary>> GetAllSummariesAsync(Guid userId, CancellationToken ct = default) =>
+        _db.DaySummaries
+            .Where(s => s.UserId == userId)
+            .OrderBy(s => s.Date)
+            .ToListAsync(ct);
+
+    public Task<List<ConsumptionEvent>> GetAllEventsAsync(Guid userId, CancellationToken ct = default) =>
+        _db.ConsumptionEvents
+            .Where(e => e.UserId == userId)
+            .ToListAsync(ct);
 }

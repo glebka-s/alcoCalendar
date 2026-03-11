@@ -3,9 +3,6 @@ import { motion } from 'framer-motion';
 import {
   Lock,
   LogOut,
-  CalendarDays,
-  Trophy,
-  Wine,
   User,
   Camera,
   Check,
@@ -13,22 +10,19 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { useProfile, useUpdateName, useChangePassword } from '../hooks/useUser';
-import { useStats } from '../hooks/useCalendar';
 import NetworkError from '../components/NetworkError';
+
+function daysSince(utcDateStr: string): number {
+  const created = new Date(utcDateStr);
+  return Math.floor((Date.now() - created.getTime()) / 86_400_000);
+}
 
 export default function ProfilePage() {
   const { logout } = useAuth();
   const { data: profile, isLoading, isError, refetch } = useProfile();
-  const { data: stats } = useStats(3);
-
-  const achievements = [
-    { label: 'Дней трезвости', value: stats?.soberDays ?? 0, icon: Trophy },
-    { label: 'Всего записей', value: stats?.totalDays ?? 0, icon: CalendarDays },
-    { label: 'Дней с алко', value: stats?.drankDays ?? 0, icon: Wine },
-  ];
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pt-6 md:px-8 md:pt-10">
+    <div className="mx-auto max-w-5xl px-4 pt-6 pb-16 md:px-8 md:pt-10">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -61,44 +55,31 @@ export default function ProfilePage() {
                       {(profile.name ?? profile.email)[0].toUpperCase()}
                     </span>
                   </span>
-                  <div className="text-center">
-                    <p className="text-lg font-semibold text-foreground">{profile.name || 'Анонимный пользователь'}</p>
-                    <p className="text-sm text-muted-foreground">Ведёт календарь {stats?.totalDays ?? 0} дн.</p>
+                  <div className="w-full text-center">
+                    <div className="relative overflow-hidden px-2">
+                      <p className="whitespace-nowrap text-lg font-semibold text-foreground">
+                        {profile.name || 'Анонимный пользователь'}
+                      </p>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-card to-transparent" />
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Ведёт календарь {daysSince(profile.createdAtUtc)} дн.
+                    </p>
                   </div>
                 </div>
               </div>
             </motion.div>
 
-            {/* Quick stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="grid grid-cols-3 gap-3 lg:grid-cols-1"
-            >
-              {achievements.map((a) => (
-                <div key={a.label} className="rounded-2xl bg-card p-4 ring-1 ring-border text-center lg:text-left">
-                  <div className="flex flex-col items-center gap-1 lg:flex-row lg:gap-3">
-                    <a.icon className="h-5 w-5 text-primary" />
-                    <div>
-                      <span className="text-xl font-bold text-foreground">{a.value}</span>
-                      <span className="ml-2 text-xs text-muted-foreground hidden lg:inline">{a.label}</span>
-                    </div>
-                  </div>
-                  <span className="mt-1 text-center text-xs text-muted-foreground leading-tight lg:hidden block">{a.label}</span>
-                </div>
-              ))}
-            </motion.div>
-          </div>
-
-          {/* Right column */}
-          <div className="lg:col-span-2 space-y-4">
-            {/* Settings card — nickname & avatar */}
+            {/* Settings card — moved here */}
             <SettingsCard
               currentName={profile.name || ''}
               email={profile.email}
             />
+          </div>
 
-            {/* Password card */}
+          {/* Right column */}
+          <div className="lg:col-span-2 space-y-4">
+            {/* Password card — moved to top */}
             <PasswordCard />
 
             {/* Logout */}
@@ -151,12 +132,12 @@ function SettingsCard({ currentName }: { currentName: string; email: string }) {
         </div>
         <div className="p-0">
           {/* Nickname */}
-          <div className="flex items-center gap-3 px-5 py-4">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary">
+          <div className="flex items-center gap-3 px-5 py-4 min-w-0">
+            <div className="flex shrink-0 h-9 w-9 items-center justify-center rounded-xl bg-secondary">
               <User className="h-4 w-4 text-muted-foreground" />
             </div>
             {editingName ? (
-              <div className="flex flex-1 items-center gap-2">
+              <div className="flex min-w-0 flex-1 items-center gap-1.5">
                 <input
                   ref={nameInputRef}
                   type="text"
@@ -167,26 +148,31 @@ function SettingsCard({ currentName }: { currentName: string; email: string }) {
                     if (e.key === 'Escape') { setEditingName(false); setName(currentName); }
                   }}
                   placeholder="Введите никнейм"
-                  className="flex-1 bg-transparent text-sm outline-none text-foreground placeholder:text-muted-foreground"
+                  className="min-w-0 flex-1 bg-transparent text-sm outline-none text-foreground placeholder:text-muted-foreground"
                 />
                 <button
                   onClick={handleSaveName}
                   disabled={updateName.isPending}
-                  className="rounded-lg p-1.5 text-sober hover:bg-sober/10 transition-colors cursor-pointer"
+                  className="shrink-0 rounded-lg p-1.5 text-sober hover:bg-sober/10 transition-colors cursor-pointer"
                 >
                   <Check className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => { setEditingName(false); setName(currentName); }}
-                  className="rounded-lg p-1.5 text-muted-foreground hover:bg-secondary transition-colors cursor-pointer"
+                  className="shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-secondary transition-colors cursor-pointer"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
             ) : (
               <>
-                <div className="flex-1">
-                  <span className="text-sm text-foreground">{currentName || 'Не указан'}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="relative overflow-hidden">
+                    <span className="block whitespace-nowrap text-sm text-foreground">
+                      {currentName || 'Не указан'}
+                    </span>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-card to-transparent" />
+                  </div>
                   <span className="block text-xs text-muted-foreground">Никнейм</span>
                 </div>
                 <button

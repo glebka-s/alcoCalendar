@@ -16,4 +16,6 @@ public interface ICalendarRepository
     Task<Dictionary<int, string>> GetDrinkTypeNamesAsync(CancellationToken ct = default);
     Task<List<DaySummary>> GetSummariesInRangeAsync(Guid userId, DateOnly from, DateOnly to, CancellationToken ct = default);
     Task<List<ConsumptionEvent>> GetEventsInRangeAsync(Guid userId, DateOnly from, DateOnly to, CancellationToken ct = default);
+    Task<List<DaySummary>> GetAllSummariesAsync(Guid userId, CancellationToken ct = default);
+    Task<List<ConsumptionEvent>> GetAllEventsAsync(Guid userId, CancellationToken ct = default);
 }

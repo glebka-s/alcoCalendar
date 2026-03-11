@@ -72,8 +72,8 @@ public sealed class CalendarService : ICalendarService
 
     public async Task SetDayStatusAsync(Guid userId, DateOnly date, DayStatus status, CancellationToken ct = default)
     {
-        if (date > DateOnly.FromDateTime(DateTime.UtcNow))
-            throw new CalendarValidationException("Cannot set status for a future date.");
+        if (date >= DateOnly.FromDateTime(DateTime.UtcNow))
+            throw new CalendarValidationException("Cannot set status for today or a future date.");
 
         var summary = await _repo.GetDaySummaryAsync(userId, date, ct);
         if (summary is null)
@@ -88,8 +88,8 @@ public sealed class CalendarService : ICalendarService
         Guid userId, DateOnly date, int drinkTypeId, int volumeMl,
         string? notes, TimeOnly? time, CancellationToken ct = default)
     {
-        if (date > DateOnly.FromDateTime(DateTime.UtcNow))
-            throw new CalendarValidationException("Cannot add events for a future date.");
+        if (date >= DateOnly.FromDateTime(DateTime.UtcNow))
+            throw new CalendarValidationException("Cannot add events for today or a future date.");
 
         if (volumeMl <= 0)
             throw new CalendarValidationException("Volume must be greater than 0.");
@@ -132,6 +132,8 @@ public sealed class CalendarService : ICalendarService
 
         var summaries = await _repo.GetSummariesInRangeAsync(userId, from, today, ct);
         var events = await _repo.GetEventsInRangeAsync(userId, from, today, ct);
+        var allSummaries = await _repo.GetAllSummariesAsync(userId, ct);
+        var allEvents = await _repo.GetAllEventsAsync(userId, ct);
         var drinkTypeNames = await _repo.GetDrinkTypeNamesAsync(ct);
 
         var summaryByDate = summaries.ToDictionary(s => s.Date);
@@ -143,18 +145,27 @@ public sealed class CalendarService : ICalendarService
 
         var totalVolumeMl = events.Sum(e => e.VolumeMl);
 
-        // Favorite drink
+        // Favorite drink — drink type that appeared on the most days with status "Drank" (all-time)
         string? favoriteDrink = null;
-        if (events.Count > 0)
+        if (allEvents.Count > 0)
         {
-            var topDrinkId = events
-                .GroupBy(e => e.DrinkTypeId)
-                .OrderByDescending(g => g.Count())
-                .First().Key;
-            drinkTypeNames.TryGetValue(topDrinkId, out favoriteDrink);
+            var drankDates = allSummaries
+                .Where(s => s.Status == DayStatus.Drank)
+                .Select(s => s.Date)
+                .ToHashSet();
+
+            var eventsOnDrankDays = allEvents.Where(e => drankDates.Contains(e.Date)).ToList();
+            if (eventsOnDrankDays.Count > 0)
+            {
+                var topDrinkId = eventsOnDrankDays
+                    .GroupBy(e => e.DrinkTypeId)
+                    .OrderByDescending(g => g.Select(e => e.Date).Distinct().Count())
+                    .First().Key;
+                drinkTypeNames.TryGetValue(topDrinkId, out favoriteDrink);
+            }
         }
 
-        // Streaks (current and longest sober)
+        // Sober streak (current and longest) — within the requested window
         int currentStreak = 0, longestStreak = 0, streak = 0;
         for (var d = from; d <= today; d = d.AddDays(1))
         {
@@ -169,6 +180,26 @@ public sealed class CalendarService : ICalendarService
             }
         }
         currentStreak = streak;
+
+        // Longest drinking streak — all-time
+        var allSummaryByDate = allSummaries.ToDictionary(s => s.Date);
+        int longestDrinkingStreak = 0, drinkStreak = 0;
+        if (allSummaries.Count > 0)
+        {
+            var minDate = allSummaries.Min(s => s.Date);
+            for (var d = minDate; d <= today; d = d.AddDays(1))
+            {
+                if (allSummaryByDate.TryGetValue(d, out var ds) && ds.Status == DayStatus.Drank)
+                {
+                    drinkStreak++;
+                    if (drinkStreak > longestDrinkingStreak) longestDrinkingStreak = drinkStreak;
+                }
+                else
+                {
+                    drinkStreak = 0;
+                }
+            }
+        }
 
         // Weekly breakdown
         var weeks = new List<WeeklyBreakdownItem>();
@@ -198,7 +229,7 @@ public sealed class CalendarService : ICalendarService
 
         return new CalendarStatsResult(
             totalDays, soberDays, drankDays, unknownDays, soberPercent,
-            currentStreak, longestStreak, totalVolumeMl, favoriteDrink, weeks);
+            currentStreak, longestStreak, longestDrinkingStreak, totalVolumeMl, favoriteDrink, weeks);
     }
 
     private static void ValidateYearMonth(int year, int month)

@@ -63,6 +63,7 @@ public sealed record CalendarStatsResponse(
     double SoberPercent,
     int CurrentSoberStreak,
     int LongestSoberStreak,
+    int LongestDrinkingStreak,
     int TotalVolumeMl,
     string? FavoriteDrink,
     IReadOnlyList<WeeklyBreakdownResponse> WeeklyBreakdown);

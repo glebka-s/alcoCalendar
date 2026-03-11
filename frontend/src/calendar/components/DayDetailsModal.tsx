@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Trash2 } from 'lucide-react';
+import { X, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import type { AddEventRequest } from '../../types/calendar';
 import {
   useDayDetails,
@@ -54,8 +54,17 @@ const DEFAULT_VOLUMES: Record<string, number> = {
 
 type View = 'details' | 'setStatus' | 'pickDrink' | 'drinkForm';
 
+const slideVariants = {
+  enterFromRight: { opacity: 0, x: 24 },
+  enterFromLeft: { opacity: 0, x: -24 },
+  center: { opacity: 1, x: 0 },
+  exitToLeft: { opacity: 0, x: -24 },
+  exitToRight: { opacity: 0, x: 24 },
+};
+
 export default function DayDetailsModal({ date, year, month, onClose }: DayDetailsModalProps) {
   const [view, setView] = useState<View>('details');
+  const [direction, setDirection] = useState<'forward' | 'back'>('forward');
   const [pendingStatus, setPendingStatus] = useState<'Sober' | 'Drank' | null>(null);
   const [selectedDrinkTypeId, setSelectedDrinkTypeId] = useState<number | null>(null);
   const [volumeStr, setVolumeStr] = useState('');
@@ -77,14 +86,19 @@ export default function DayDetailsModal({ date, year, month, onClose }: DayDetai
   const isUnset = !dayDetails || dayDetails.status === 'Unknown';
   const isDrank = dayDetails?.status === 'Drank';
 
+  const navigateTo = (next: View, dir: 'forward' | 'back') => {
+    setDirection(dir);
+    setView(next);
+  };
+
   const handleSoberClick = async () => {
     await setDayStatusMutation.mutateAsync({ date, request: { status: 'Sober' } });
-    setView('details');
+    onClose();
   };
 
   const handleDrankClick = () => {
     setPendingStatus('Drank');
-    setView('pickDrink');
+    navigateTo('pickDrink', 'forward');
   };
 
   const handlePickDrink = (drinkTypeId: number) => {
@@ -93,7 +107,7 @@ export default function DayDetailsModal({ date, year, month, onClose }: DayDetai
     setVolumeStr(String(DEFAULT_VOLUMES[drinkName] ?? 50));
     setTime('');
     setNotes('');
-    setView('drinkForm');
+    navigateTo('drinkForm', 'forward');
   };
 
   const handleSubmitDrink = async () => {
@@ -115,7 +129,7 @@ export default function DayDetailsModal({ date, year, month, onClose }: DayDetai
     }
     setPendingStatus(null);
     setSelectedDrinkTypeId(null);
-    setView('details');
+    navigateTo('details', 'forward');
   };
 
   const handleDeleteEvent = async (eventId: string) => {
@@ -124,13 +138,22 @@ export default function DayDetailsModal({ date, year, month, onClose }: DayDetai
     }
   };
 
+  const adjustVolume = (delta: number) => {
+    const current = parseInt(volumeStr, 10) || 0;
+    const next = Math.max(50, Math.min(10000, current + delta));
+    setVolumeStr(String(next));
+  };
+
   const isActionLoading =
     setDayStatusMutation.isPending ||
     addEventMutation.isPending ||
     deleteEventMutation.isPending;
 
   const inputClasses =
-    'w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none transition-colors focus:border-ring focus:ring-1 focus:ring-ring';
+    'w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary/50 focus:ring-1 focus:ring-inset focus:ring-primary/30 accent-primary [color-scheme:dark]';
+
+  const enterVariant = direction === 'forward' ? slideVariants.enterFromRight : slideVariants.enterFromLeft;
+  const exitVariant = direction === 'forward' ? slideVariants.exitToLeft : slideVariants.exitToRight;
 
   return (
     <div
@@ -161,245 +184,281 @@ export default function DayDetailsModal({ date, year, month, onClose }: DayDetai
           <p className="text-sm text-muted-foreground text-center py-4">Загрузка...</p>
         )}
 
-        {/* Details view */}
-        {view === 'details' && !detailsLoading && (
-          <div className="flex flex-col gap-4">
-            {/* Status toggle */}
-            {isUnset && (
-              <div className="flex gap-3">
-                <button
-                  onClick={handleSoberClick}
-                  disabled={isActionLoading}
-                  className="flex-1 rounded-xl bg-sober/15 py-3 font-semibold text-sober transition-colors hover:bg-sober/25 disabled:opacity-50 cursor-pointer"
-                >
-                  ✅ Не пил
-                </button>
-                <button
-                  onClick={handleDrankClick}
-                  disabled={isActionLoading}
-                  className="flex-1 rounded-xl bg-drinking/15 py-3 font-semibold text-drinking transition-colors hover:bg-drinking/25 disabled:opacity-50 cursor-pointer"
-                >
-                  🍻 Пил
-                </button>
-              </div>
+        <div className="overflow-hidden">
+          <AnimatePresence mode="wait" initial={false}>
+            {/* Details view */}
+            {view === 'details' && !detailsLoading && (
+              <motion.div
+                key="details"
+                initial={enterVariant}
+                animate={slideVariants.center}
+                exit={exitVariant}
+                transition={{ duration: 0.22, ease: 'easeInOut' }}
+                className="flex flex-col gap-4"
+              >
+                {/* Status toggle */}
+                {isUnset && (
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleSoberClick}
+                      disabled={isActionLoading}
+                      className="flex-1 rounded-xl bg-sober/15 py-3 font-semibold text-sober transition-colors hover:bg-sober/25 disabled:opacity-50 cursor-pointer"
+                    >
+                      ✅ Не пил
+                    </button>
+                    <button
+                      onClick={handleDrankClick}
+                      disabled={isActionLoading}
+                      className="flex-1 rounded-xl bg-drinking/15 py-3 font-semibold text-drinking transition-colors hover:bg-drinking/25 disabled:opacity-50 cursor-pointer"
+                    >
+                      🍻 Пил
+                    </button>
+                  </div>
+                )}
+
+                {!isUnset && (
+                  <>
+                    {/* Current status */}
+                    <div className="flex gap-3">
+                      <button
+                        onClick={handleSoberClick}
+                        disabled={isActionLoading}
+                        className={`flex-1 rounded-xl py-3 font-semibold transition-colors disabled:opacity-50 cursor-pointer ${
+                          dayDetails?.status === 'Sober'
+                            ? 'bg-sober text-sober-foreground'
+                            : 'bg-sober/15 text-sober hover:bg-sober/25'
+                        }`}
+                      >
+                        ✅ Не пил
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (dayDetails?.status !== 'Drank') {
+                            handleDrankClick();
+                          }
+                        }}
+                        disabled={isActionLoading}
+                        className={`flex-1 rounded-xl py-3 font-semibold transition-colors disabled:opacity-50 cursor-pointer ${
+                          dayDetails?.status === 'Drank'
+                            ? 'bg-drinking text-drinking-foreground'
+                            : 'bg-drinking/15 text-drinking hover:bg-drinking/25'
+                        }`}
+                      >
+                        🍻 Пил
+                      </button>
+                    </div>
+
+                    {/* Drinks list */}
+                    {isDrank && (
+                      <div>
+                        <div className="mb-2 flex items-center justify-between">
+                          <h3 className="text-sm font-semibold text-muted-foreground">Напитки</h3>
+                          <button
+                            onClick={() => { setPendingStatus(null); navigateTo('pickDrink', 'forward'); }}
+                            disabled={isActionLoading}
+                            className="flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20 transition-colors disabled:opacity-50 cursor-pointer"
+                          >
+                            <Plus className="h-3 w-3" />
+                            Добавить
+                          </button>
+                        </div>
+
+                        {dayDetails.events.length > 0 ? (
+                          <div className="flex flex-col gap-2">
+                            {dayDetails.events.map((event) => (
+                              <div
+                                key={event.id}
+                                className="flex items-center gap-3 rounded-xl bg-background p-3"
+                              >
+                                <span className="text-xl">
+                                  {DRINK_ICONS[event.drinkTypeName] ?? '🍸'}
+                                </span>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-medium">{event.drinkTypeName}</div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {event.volumeMl} мл
+                                    {event.time && ` · ${formatTime(event.time)}`}
+                                    {event.notes && ` · ${event.notes}`}
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => handleDeleteEvent(event.id)}
+                                  disabled={isActionLoading}
+                                  className="p-1 text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50 cursor-pointer"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">
+                            Добавь напитки, которые были сегодня
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+              </motion.div>
             )}
 
-            {!isUnset && (
-              <>
-                {/* Current status */}
+            {/* Set status view (for changing existing status) */}
+            {view === 'setStatus' && (
+              <motion.div
+                key="setStatus"
+                initial={enterVariant}
+                animate={slideVariants.center}
+                exit={exitVariant}
+                transition={{ duration: 0.22, ease: 'easeInOut' }}
+                className="flex flex-col gap-3"
+              >
+                <h3 className="font-semibold">Изменить статус</h3>
                 <div className="flex gap-3">
                   <button
                     onClick={handleSoberClick}
                     disabled={isActionLoading}
-                    className={`flex-1 rounded-xl py-3 font-semibold transition-colors disabled:opacity-50 cursor-pointer ${
-                      dayDetails?.status === 'Sober'
-                        ? 'bg-sober text-sober-foreground'
-                        : 'bg-sober/15 text-sober hover:bg-sober/25'
-                    }`}
+                    className="flex-1 rounded-xl bg-sober/15 py-3 font-semibold text-sober hover:bg-sober/25 disabled:opacity-50 cursor-pointer"
                   >
                     ✅ Не пил
                   </button>
                   <button
-                    onClick={() => {
-                      if (dayDetails?.status !== 'Drank') {
-                        handleDrankClick();
-                      }
-                    }}
+                    onClick={handleDrankClick}
                     disabled={isActionLoading}
-                    className={`flex-1 rounded-xl py-3 font-semibold transition-colors disabled:opacity-50 cursor-pointer ${
-                      dayDetails?.status === 'Drank'
-                        ? 'bg-drinking text-drinking-foreground'
-                        : 'bg-drinking/15 text-drinking hover:bg-drinking/25'
-                    }`}
+                    className="flex-1 rounded-xl bg-drinking/15 py-3 font-semibold text-drinking hover:bg-drinking/25 disabled:opacity-50 cursor-pointer"
                   >
                     🍻 Пил
                   </button>
                 </div>
-
-                {/* Drinks list */}
-                {isDrank && (
-                  <div>
-                    <div className="mb-2 flex items-center justify-between">
-                      <h3 className="text-sm font-semibold text-muted-foreground">Напитки</h3>
-                      <button
-                        onClick={() => { setPendingStatus(null); setView('pickDrink'); }}
-                        disabled={isActionLoading}
-                        className="flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20 transition-colors disabled:opacity-50 cursor-pointer"
-                      >
-                        <Plus className="h-3 w-3" />
-                        Добавить
-                      </button>
-                    </div>
-
-                    {dayDetails.events.length > 0 ? (
-                      <div className="flex flex-col gap-2">
-                        {dayDetails.events.map((event) => (
-                          <div
-                            key={event.id}
-                            className="flex items-center gap-3 rounded-xl bg-background p-3"
-                          >
-                            <span className="text-xl">
-                              {DRINK_ICONS[event.drinkTypeName] ?? '🍸'}
-                            </span>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium">{event.drinkTypeName}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {event.volumeMl} мл
-                                {event.time && ` · ${formatTime(event.time)}`}
-                                {event.notes && ` · ${event.notes}`}
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => handleDeleteEvent(event.id)}
-                              disabled={isActionLoading}
-                              className="p-1 text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50 cursor-pointer"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        Добавь напитки, которые были сегодня
-                      </p>
-                    )}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        )}
-
-        {/* Set status view (for changing existing status) */}
-        {view === 'setStatus' && (
-          <div className="flex flex-col gap-3">
-            <h3 className="font-semibold">Изменить статус</h3>
-            <div className="flex gap-3">
-              <button
-                onClick={handleSoberClick}
-                disabled={isActionLoading}
-                className="flex-1 rounded-xl bg-sober/15 py-3 font-semibold text-sober hover:bg-sober/25 disabled:opacity-50 cursor-pointer"
-              >
-                ✅ Не пил
-              </button>
-              <button
-                onClick={handleDrankClick}
-                disabled={isActionLoading}
-                className="flex-1 rounded-xl bg-drinking/15 py-3 font-semibold text-drinking hover:bg-drinking/25 disabled:opacity-50 cursor-pointer"
-              >
-                🍻 Пил
-              </button>
-            </div>
-            <button
-              onClick={() => setView('details')}
-              className="rounded-xl border border-border py-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-            >
-              Назад
-            </button>
-          </div>
-        )}
-
-        {/* Drink type picker */}
-        <AnimatePresence>
-          {view === 'pickDrink' && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="flex flex-col gap-3"
-            >
-              <h3 className="font-semibold">Выбери напиток</h3>
-              <div className="grid grid-cols-3 gap-2">
-                {drinkTypes.map((dt) => (
-                  <button
-                    key={dt.id}
-                    onClick={() => handlePickDrink(dt.id)}
-                    className="flex flex-col items-center gap-1 rounded-xl bg-background p-3 transition-colors hover:bg-primary/10 cursor-pointer"
-                  >
-                    <span className="text-2xl">{DRINK_ICONS[dt.name] ?? '🍸'}</span>
-                    <span className="text-xs text-muted-foreground">{dt.name}</span>
-                  </button>
-                ))}
-              </div>
-              <button
-                onClick={() => setView(isUnset ? 'details' : 'details')}
-                className="rounded-xl border border-border py-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-              >
-                Отмена
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Drink detail form */}
-        <AnimatePresence>
-          {view === 'drinkForm' && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="flex flex-col gap-4"
-            >
-              <h3 className="font-semibold">
-                {drinkTypes.find(d => d.id === selectedDrinkTypeId)?.name ?? 'Напиток'}{' '}
-                <span className="text-lg">{DRINK_ICONS[drinkTypes.find(d => d.id === selectedDrinkTypeId)?.name ?? ''] ?? '🍸'}</span>
-              </h3>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-muted-foreground">Объём (мл)</label>
-                <input
-                  type="number"
-                  value={volumeStr}
-                  onChange={(e) => setVolumeStr(e.target.value)}
-                  min={50}
-                  max={10000}
-                  step={50}
-                  className={inputClasses}
-                  required
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-muted-foreground">Время (необязательно)</label>
-                <input
-                  type="time"
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  className={inputClasses}
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-muted-foreground">Заметка (необязательно)</label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Например: встреча с друзьями"
-                  maxLength={500}
-                  rows={2}
-                  className={`${inputClasses} resize-none`}
-                />
-              </div>
-
-              <div className="flex gap-2">
                 <button
-                  onClick={() => setView('pickDrink')}
-                  className="flex-1 rounded-xl border border-border py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  onClick={() => navigateTo('details', 'back')}
+                  className="rounded-xl border border-border py-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 >
                   Назад
                 </button>
+              </motion.div>
+            )}
+
+            {/* Drink type picker */}
+            {view === 'pickDrink' && (
+              <motion.div
+                key="pickDrink"
+                initial={enterVariant}
+                animate={slideVariants.center}
+                exit={exitVariant}
+                transition={{ duration: 0.22, ease: 'easeInOut' }}
+                className="flex flex-col gap-3"
+              >
+                <h3 className="font-semibold">Выбери напиток</h3>
+                <div className="grid grid-cols-3 gap-2">
+                  {drinkTypes.map((dt) => (
+                    <button
+                      key={dt.id}
+                      onClick={() => handlePickDrink(dt.id)}
+                      className="flex flex-col items-center gap-1 rounded-xl bg-background p-3 transition-colors hover:bg-primary/10 cursor-pointer"
+                    >
+                      <span className="text-2xl">{DRINK_ICONS[dt.name] ?? '🍸'}</span>
+                      <span className="text-xs text-muted-foreground">{dt.name}</span>
+                    </button>
+                  ))}
+                </div>
                 <button
-                  onClick={handleSubmitDrink}
-                  disabled={isActionLoading}
-                  className="flex-[2] rounded-xl bg-primary py-2.5 font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60 transition-colors cursor-pointer"
+                  onClick={() => navigateTo('details', 'back')}
+                  className="rounded-xl border border-border py-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 >
-                  {isActionLoading ? 'Сохранение...' : 'Добавить'}
+                  Отмена
                 </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </motion.div>
+            )}
+
+            {/* Drink detail form */}
+            {view === 'drinkForm' && (
+              <motion.div
+                key="drinkForm"
+                initial={enterVariant}
+                animate={slideVariants.center}
+                exit={exitVariant}
+                transition={{ duration: 0.22, ease: 'easeInOut' }}
+                className="flex flex-col gap-4"
+              >
+                <h3 className="font-semibold">
+                  {drinkTypes.find(d => d.id === selectedDrinkTypeId)?.name ?? 'Напиток'}{' '}
+                  <span className="text-lg">{DRINK_ICONS[drinkTypes.find(d => d.id === selectedDrinkTypeId)?.name ?? ''] ?? '🍸'}</span>
+                </h3>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-muted-foreground">Объём (мл)</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      value={volumeStr}
+                      onChange={(e) => setVolumeStr(e.target.value)}
+                      min={50}
+                      max={10000}
+                      step={50}
+                      className={`${inputClasses} [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none flex-1`}
+                      required
+                    />
+                    <div className="flex flex-col gap-1">
+                      <button
+                        type="button"
+                        onClick={() => adjustVolume(50)}
+                        className="flex h-7 w-7 items-center justify-center rounded-lg bg-secondary text-foreground hover:bg-primary/15 transition-colors cursor-pointer"
+                      >
+                        <ChevronUp className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => adjustVolume(-50)}
+                        className="flex h-7 w-7 items-center justify-center rounded-lg bg-secondary text-foreground hover:bg-primary/15 transition-colors cursor-pointer"
+                      >
+                        <ChevronDown className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-muted-foreground">Время (необязательно)</label>
+                  <input
+                    type="time"
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
+                    className={inputClasses}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-muted-foreground">Заметка (необязательно)</label>
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Например: встреча с друзьями"
+                    maxLength={500}
+                    rows={2}
+                    className={`${inputClasses} resize-none`}
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => navigateTo('pickDrink', 'back')}
+                    className="flex-1 rounded-xl border border-border py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  >
+                    Назад
+                  </button>
+                  <button
+                    onClick={handleSubmitDrink}
+                    disabled={isActionLoading}
+                    className="flex-[2] rounded-xl bg-primary py-2.5 font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60 transition-colors cursor-pointer"
+                  >
+                    {isActionLoading ? 'Сохранение...' : 'Добавить'}
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </motion.div>
     </div>
   );

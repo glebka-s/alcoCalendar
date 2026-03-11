@@ -4,6 +4,7 @@ export interface UserProfile {
   userId: string;
   email: string;
   name: string | null;
+  createdAtUtc: string;
 }
 
 export async function fetchProfile(): Promise<UserProfile> {

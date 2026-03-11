@@ -4,12 +4,10 @@ import Sidebar from './Sidebar';
 
 export default function AppLayout() {
   return (
-    <div className="dark min-h-screen bg-background">
+    <div className="dark flex h-full flex-col bg-background">
       <Sidebar />
-      <main className="lg:ml-[220px]">
-        <div className="min-h-screen">
-          <Outlet />
-        </div>
+      <main className="flex-1 overflow-y-auto lg:ml-[220px]">
+        <Outlet />
       </main>
       <BottomNav />
     </div>

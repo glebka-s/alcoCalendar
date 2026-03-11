@@ -203,16 +203,20 @@ export default function CalendarPage() {
                   {d}
                 </div>
               ))}
-              {gridCells.map((cell) => (
-                <DayCell
-                  key={cell.date}
-                  day={dayMap[cell.date] ?? null}
-                  dayNumber={cell.dayNumber}
-                  isToday={cell.date === todayStr}
-                  isCurrentMonth={cell.isCurrentMonth}
-                  onClick={() => setSelectedDate(cell.date)}
-                />
-              ))}
+              {gridCells.map((cell) => {
+                const isDisabled = cell.date >= todayStr;
+                return (
+                  <DayCell
+                    key={cell.date}
+                    day={dayMap[cell.date] ?? null}
+                    dayNumber={cell.dayNumber}
+                    isToday={cell.date === todayStr}
+                    isCurrentMonth={cell.isCurrentMonth}
+                    disabled={isDisabled}
+                    onClick={() => { if (!isDisabled) setSelectedDate(cell.date); }}
+                  />
+                );
+              })}
             </div>
           )}
         </div>
